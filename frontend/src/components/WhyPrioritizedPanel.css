@@ -1,0 +1,554 @@
+/* ==========================================================================
+   RADIX HEALTHCARE SAAS - EXPLAINABLE AI "WHY PRIORITIZED" PANEL STYLES
+   Default: Professional White Clinical Consultation Theme
+   ========================================================================== */
+
+.why-prioritized-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #ffffff;
+  border-radius: 8px;
+  color: #0f172a;
+}
+
+.why-prioritized-container.compact {
+  gap: 10px;
+}
+
+/* 1. Header */
+.why-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 0.5px solid #0f172a;
+}
+
+.why-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.why-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.why-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+}
+
+.why-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.model-version-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #0f172a;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* 2. Hero Score Card */
+.why-score-hero-card {
+  background: #ffffff;
+  border: 0.5px solid #0f172a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.score-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.score-hero-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.score-hero-number-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.score-hero-number {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-hero-max {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.score-hero-sub {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.score-hero-sub strong {
+  color: #0284c7;
+}
+
+.score-hero-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.priority-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+  border: 1px solid #0f172a;
+}
+
+.priority-rank-badge.high {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #0f172a;
+}
+
+.priority-rank-badge.med {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #0f172a;
+}
+
+.priority-rank-badge.low {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #0f172a;
+}
+
+.pulse-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.algorithm-confidence {
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+/* 3. Natural Language Clinical Escalation Summary */
+.why-rationale-box {
+  background: #ffffff;
+  border: 0.5px solid #0f172a;
+  border-left: 4px solid #0f172a;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.rationale-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.rationale-icon {
+  color: #0284c7;
+}
+
+.rationale-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #0369a1;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.rationale-text {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: #334155;
+}
+
+/* 3b. Deterministic Tie-Breaker Box */
+.why-tie-resolution-box {
+  background: #ffffff;
+  border: 0.5px solid #0f172a;
+  border-left: 4px solid #0f172a;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.tie-resolution-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tie-resolution-icon {
+  color: #0284c7;
+}
+
+.tie-resolution-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tie-resolution-desc {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: #334155;
+}
+
+/* 4. Formula Bar */
+.why-formula-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #0f172a;
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 0.68rem;
+  color: #0f172a;
+}
+
+.why-formula-bar code {
+  color: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+}
+
+/* 5. Itemized Score Breakdown Factors */
+.why-factors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.why-factor-card {
+  background: #ffffff;
+  border: 0.5px solid #0f172a;
+  border-radius: 6px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.why-factor-card:hover {
+  border-color: #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.factor-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.factor-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.factor-icon-wrapper {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #0f172a;
+  background: #ffffff;
+}
+
+.factor-name {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #0f172a;
+  display: block;
+}
+
+.factor-weight-tag {
+  font-size: 0.64rem;
+  color: #64748b;
+  display: block;
+}
+
+.factor-score-group {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.factor-points {
+  font-size: 0.86rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.factor-max-points {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.factor-status-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 4px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #0f172a;
+}
+
+.factor-progress-track {
+  width: 100%;
+  height: 5px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.factor-progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.factor-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.7rem;
+}
+
+.factor-detail-text {
+  color: #475569;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.factor-percentage-text {
+  color: #64748b;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* 6. Override Notice */
+.why-override-banner {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.override-banner-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b45309;
+  font-size: 0.74rem;
+}
+
+.override-banner-desc {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #92400e;
+}
+
+.override-reason-quote {
+  font-size: 0.7rem;
+  color: #78350f;
+  background: #ffffff;
+  border-left: 2px solid #f59e0b;
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* 7. Footer Action */
+.why-footer-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid #e2e8f0;
+  gap: 10px;
+}
+
+.why-override-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.why-override-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.regulatory-text {
+  font-size: 0.65rem;
+  color: #64748b;
+  text-align: right;
+}
+
+/* ==========================================================================
+   DARK THEME VARIANT (For inside PACS Workstation Diagnostic Canvas only)
+   ========================================================================== */
+.why-prioritized-container.dark-theme {
+  background: transparent;
+  color: #e2e8f0;
+}
+
+.why-prioritized-container.dark-theme .why-header {
+  border-bottom-color: #1e293b;
+}
+
+.why-prioritized-container.dark-theme .why-title {
+  color: #ffffff;
+}
+
+.why-prioritized-container.dark-theme .why-subtitle {
+  color: #94a3b8;
+}
+
+.why-prioritized-container.dark-theme .why-icon-badge {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.why-prioritized-container.dark-theme .model-version-tag {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: rgba(14, 165, 233, 0.25);
+  color: #38bdf8;
+}
+
+.why-prioritized-container.dark-theme .why-score-hero-card {
+  background: #111d33;
+  border-color: #1e3355;
+}
+
+.why-prioritized-container.dark-theme .score-hero-number {
+  color: #ffffff;
+}
+
+.why-prioritized-container.dark-theme .why-rationale-box {
+  background: rgba(14, 165, 233, 0.06);
+  border-color: rgba(14, 165, 233, 0.22);
+  border-left-color: #0284c7;
+}
+
+.why-prioritized-container.dark-theme .rationale-text {
+  color: #cbd5e1;
+}
+
+.why-prioritized-container.dark-theme .why-formula-bar {
+  background: #070d18;
+  border-color: #1e293b;
+}
+
+.why-prioritized-container.dark-theme .why-formula-bar code {
+  color: #94a3b8;
+}
+
+.why-prioritized-container.dark-theme .why-factor-card {
+  background: #0e1726;
+  border-color: #1e293b;
+}
+
+.why-prioritized-container.dark-theme .factor-name {
+  color: #f1f5f9;
+}
+
+.why-prioritized-container.dark-theme .factor-progress-track {
+  background: #1e293b;
+}
+
+.why-prioritized-container.dark-theme .why-footer-action {
+  border-top-color: #1e293b;
+}
+
+.why-prioritized-container.dark-theme .why-override-btn {
+  background: transparent;
+  border-color: #d97706;
+  color: #fbbf24;
+}
+
+.why-prioritized-container.dark-theme .why-tie-resolution-box {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+  border-left-color: #818cf8;
+}
+
+.why-prioritized-container.dark-theme .tie-resolution-desc {
+  color: #cbd5e1;
+}

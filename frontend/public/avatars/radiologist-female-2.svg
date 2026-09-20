@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488"/>
+      <stop offset="60%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#042f2e"/>
+    </linearGradient>
+    <linearGradient id="scrubTeal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#14b8a6"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    @keyframes breatheF2 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2.5px); }
+    }
+    @keyframes pulseRingF2 {
+      0%, 100% { transform: scale(0.96); opacity: 0.3; }
+      50% { transform: scale(1.03); opacity: 0.8; }
+    }
+    @keyframes blinkF2 {
+      0%, 91%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+    @keyframes synapsePulse {
+      0%, 100% { opacity: 0.4; filter: drop-shadow(0 0 1px #5eead4); }
+      50% { opacity: 1; filter: drop-shadow(0 0 5px #5eead4); }
+    }
+    .char-group-f2 { animation: breatheF2 3.5s ease-in-out infinite; transform-origin: 100px 150px; }
+    .pulse-ring-f2 { animation: pulseRingF2 3.4s ease-in-out infinite; transform-origin: 100px 100px; }
+    .eye-f2 { animation: blinkF2 4.6s infinite; transform-origin: 100px 88px; }
+    .synapse-badge { animation: synapsePulse 2.2s ease-in-out infinite; }
+  </style>
+
+  <!-- Circular Base Background -->
+  <circle cx="100" cy="100" r="98" fill="url(#bgGrad3)" />
+  <circle class="pulse-ring-f2" cx="100" cy="100" r="93" fill="none" stroke="#2dd4bf" stroke-dasharray="6 3" opacity="0.5" stroke-width="1.6" />
+
+  <!-- Character -->
+  <g class="char-group-f2">
+    <!-- Neck -->
+    <path d="M 90 102 L 110 102 L 112 122 L 88 122 Z" fill="#fed7aa" />
+
+    <!-- Head / Face -->
+    <ellipse cx="100" cy="86" rx="27" ry="31" fill="#ffedd5" />
+
+    <!-- Surgical Scrub Cap (Medical Teal) -->
+    <path d="M 68 76 Q 64 42 100 42 Q 136 42 132 76 Q 100 68 68 76 Z" fill="#0f766e" />
+    <path d="M 68 74 Q 100 66 132 74 L 133 80 Q 100 72 67 80 Z" fill="#14b8a6" />
+    <!-- Cap Medical Cross Icons -->
+    <circle cx="100" cy="56" r="5" fill="#ffffff" opacity="0.3" />
+    <rect x="99" y="53" width="2" height="6" fill="#042f2e" />
+    <rect x="97" y="55" width="6" height="2" fill="#042f2e" />
+
+    <!-- Hair Strands Peeking Out -->
+    <path d="M 70 78 Q 66 94 72 104 Q 74 92 73 82 Z" fill="#78350f" />
+    <path d="M 130 78 Q 134 94 128 104 Q 126 92 127 82 Z" fill="#78350f" />
+
+    <!-- Eyebrows -->
+    <path d="M 82 78 Q 88 75 94 77" fill="none" stroke="#78350f" stroke-width="1.8" stroke-linecap="round" />
+    <path d="M 106 77 Q 112 75 118 78" fill="none" stroke="#78350f" stroke-width="1.8" stroke-linecap="round" />
+
+    <!-- Eyes (Animated) -->
+    <g class="eye-f2">
+      <ellipse cx="88" cy="87" rx="3.4" ry="4" fill="#042f2e" />
+      <ellipse cx="112" cy="87" rx="3.4" ry="4" fill="#042f2e" />
+      <circle cx="89.5" cy="85.5" r="1.3" fill="#ffffff" />
+      <circle cx="113.5" cy="85.5" r="1.3" fill="#ffffff" />
+      <!-- Subtle Eyeliner -->
+      <path d="M 83 84 Q 88 82 93 84" fill="none" stroke="#042f2e" stroke-width="1.2" stroke-linecap="round" />
+      <path d="M 107 84 Q 112 82 117 84" fill="none" stroke="#042f2e" stroke-width="1.2" stroke-linecap="round" />
+    </g>
+
+    <!-- Cheeks Blush -->
+    <ellipse cx="83" cy="94" rx="4" ry="2.2" fill="#f43f5e" opacity="0.25" />
+    <ellipse cx="117" cy="94" rx="4" ry="2.2" fill="#f43f5e" opacity="0.25" />
+
+    <!-- Nose -->
+    <path d="M 99 90 Q 100 94 102 94" fill="none" stroke="#fba75d" stroke-width="1.4" stroke-linecap="round" />
+
+    <!-- Warm Smile -->
+    <path d="M 94 100 Q 100 105 106 100" fill="none" stroke="#e11d48" stroke-width="1.8" stroke-linecap="round" />
+
+    <!-- Surgical Scrubs Body -->
+    <path d="M 76 122 L 124 122 L 132 185 L 68 185 Z" fill="url(#scrubTeal)" />
+    <!-- Scrubs V-Neck Collar -->
+    <path d="M 92 122 L 100 134 L 108 122 Z" fill="#ffedd5" />
+    <path d="M 90 122 L 100 136 L 110 122" fill="none" stroke="#0d9488" stroke-width="2" />
+
+    <!-- Stethoscope Around Neck (Navy) -->
+    <path d="M 84 122 C 75 140 76 156 86 162 C 92 165 96 162 96 156" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+    <path d="M 116 122 C 125 140 124 156 114 162 C 108 165 104 162 104 156" fill="none" stroke="#0f172a" stroke-width="3" stroke-linecap="round" />
+    <circle cx="100" cy="162" r="6" fill="#cbd5e1" stroke="#0f172a" stroke-width="1" />
+    <circle cx="100" cy="162" r="3" fill="#14b8a6" />
+
+    <!-- Neuro-Imaging Brain Wave Badge -->
+    <g class="synapse-badge" transform="translate(122, 142)">
+      <rect x="0" y="0" width="18" height="18" rx="4" fill="#ffffff" stroke="#0d9488" stroke-width="1" />
+      <!-- Brain / Wave Icon -->
+      <path d="M 4 9 Q 7 4 10 9 Q 13 14 15 9" fill="none" stroke="#0d9488" stroke-width="1.6" stroke-linecap="round" />
+      <circle cx="9" cy="9" r="1.5" fill="#2dd4bf" />
+    </g>
+  </g>
+
+  <!-- Border Ring -->
+  <circle cx="100" cy="100" r="97.5" fill="none" stroke="#2dd4bf" stroke-width="1.6" opacity="0.8" />
+</svg>

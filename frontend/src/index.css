@@ -1,0 +1,148 @@
+@import "./styles/variables.css";
+
+:root {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #0f172a;
+  background: var(--color-bg-app, #f8fafc);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  height: 100vh;
+  height: 100dvh;
+  background: var(--color-bg-app, #f8fafc);
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Custom Healthcare Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Clinical Utility Classes */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* ==========================================================================
+   GLOBAL 0.5px BORDER ENFORCEMENT & HIGH-CONTRAST PROFESSIONAL SYSTEM
+   ========================================================================== */
+.auth-main-card,
+.card-input-box,
+.login-form-inner-wrapper,
+.card-tab-nav,
+.card-brand-pill,
+.profile-card,
+.pacs-card,
+.stat-card,
+.dashboard-card,
+.overview-card,
+.analytics-card,
+.worklist-table-container,
+.worklist-filter-bar,
+.worklist-table-row,
+.viewer-panel,
+.sidebar-brand-wrapper,
+.radix-sidebar,
+.radix-app-header,
+.header-icon-btn,
+.header-profile-btn,
+.header-ai-badge,
+.profile-dropdown-menu,
+.notif-dropdown,
+.modal-card,
+.input-with-icon,
+.btn-secondary,
+.profile-btn-secondary,
+.profile-btn-primary,
+.preset-chip,
+.stat-card-pill,
+.badge-locked,
+.verified-pill,
+.accreditation-badge-row,
+.title-icon-box,
+.pacs-status-badge,
+.pacs-protocol-card,
+.setting-section-card,
+.header-avatar,
+.search-input-wrapper,
+.filter-dropdown-btn,
+.table-header-cell,
+.metric-tile,
+.summary-widget {
+  border-width: 0.5px !important;
+}
+

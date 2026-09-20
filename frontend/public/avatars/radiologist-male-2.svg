@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#475569"/>
+      <stop offset="60%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="coatGradM2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    @keyframes breatheM2 {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2.2px); }
+    }
+    @keyframes pulseRingM2 {
+      0%, 100% { transform: scale(0.96); opacity: 0.3; }
+      50% { transform: scale(1.03); opacity: 0.75; }
+    }
+    @keyframes blinkM2 {
+      0%, 89%, 100% { transform: scaleY(1); }
+      94% { transform: scaleY(0.1); }
+    }
+    @keyframes radarSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .char-group-m2 { animation: breatheM2 3.6s ease-in-out infinite; transform-origin: 100px 150px; }
+    .pulse-ring-m2 { animation: pulseRingM2 3s ease-in-out infinite; transform-origin: 100px 100px; }
+    .eye-m2 { animation: blinkM2 4.4s infinite; transform-origin: 100px 88px; }
+  </style>
+
+  <!-- Circular Base Background -->
+  <circle cx="100" cy="100" r="98" fill="url(#bgGrad4)" />
+  <circle class="pulse-ring-m2" cx="100" cy="100" r="93" fill="none" stroke="#94a3b8" stroke-dasharray="4 4" opacity="0.4" stroke-width="1.6" />
+
+  <!-- Character -->
+  <g class="char-group-m2">
+    <!-- Neck -->
+    <path d="M 88 102 L 112 102 L 114 122 L 86 122 Z" fill="#e2b189" />
+
+    <!-- Head / Face -->
+    <ellipse cx="100" cy="86" rx="27" ry="31" fill="#f5c79e" />
+
+    <!-- Surgical Skull Cap (Dark Slate) -->
+    <path d="M 70 76 Q 66 45 100 45 Q 134 45 130 76 Q 100 70 70 76 Z" fill="#1e293b" />
+    <path d="M 69 75 Q 100 68 131 75 L 131 80 Q 100 73 69 80 Z" fill="#334155" />
+
+    <!-- Eyebrows -->
+    <path d="M 80 77 Q 87 74 94 77" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round" />
+    <path d="M 106 77 Q 113 74 120 77" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round" />
+
+    <!-- Eyes (Animated) -->
+    <g class="eye-m2">
+      <ellipse cx="87" cy="85" rx="3.5" ry="4.2" fill="#0f172a" />
+      <ellipse cx="113" cy="85" rx="3.5" ry="4.2" fill="#0f172a" />
+      <circle cx="88.5" cy="83.5" r="1.3" fill="#ffffff" />
+      <circle cx="114.5" cy="83.5" r="1.3" fill="#ffffff" />
+    </g>
+
+    <!-- Professional Beard & Mustache -->
+    <path d="M 94 96 Q 100 97 106 96 Q 108 100 100 100 Q 92 100 94 96 Z" fill="#1e293b" />
+    <path d="M 86 100 Q 100 120 114 100 Q 109 116 100 116 Q 91 116 86 100 Z" fill="#1e293b" />
+
+    <!-- Nose -->
+    <path d="M 100 87 L 98 93 L 102 93" fill="none" stroke="#d97706" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Dark Navy Scrubs Inner -->
+    <path d="M 80 122 L 120 122 L 126 185 L 74 185 Z" fill="#0f172a" />
+    <path d="M 92 122 L 100 133 L 108 122 Z" fill="#e2b189" />
+
+    <!-- White Coat -->
+    <path d="M 50 144 Q 72 122 86 122 L 94 174 L 70 185 L 42 178 Z" fill="url(#coatGradM2)" stroke="#cbd5e1" stroke-width="0.75" />
+    <path d="M 150 144 Q 128 122 114 122 L 106 174 L 130 185 L 158 178 Z" fill="url(#coatGradM2)" stroke="#cbd5e1" stroke-width="0.75" />
+
+    <!-- Stethoscope -->
+    <path d="M 84 124 C 74 140 76 156 86 162 C 92 166 95 162 95 155" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round" />
+    <path d="M 116 124 C 126 140 124 156 114 162 C 108 166 105 162 105 155" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round" />
+    <circle cx="100" cy="162" r="6" fill="#64748b" stroke="#0f172a" stroke-width="1" />
+    <circle cx="100" cy="162" r="3" fill="#38bdf8" />
+  </g>
+
+  <!-- Border Ring -->
+  <circle cx="100" cy="100" r="97.5" fill="none" stroke="#94a3b8" stroke-width="1.8" opacity="0.8" />
+</svg>

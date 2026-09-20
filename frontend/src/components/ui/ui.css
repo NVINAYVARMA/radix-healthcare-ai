@@ -1,0 +1,501 @@
+/* ==========================================================================
+   RADIX UI ATOMIC COMPONENTS STYLESHEET
+   Button, Input, Card, Badge (Professional Healthcare SaaS Standard)
+   ========================================================================== */
+
+/* =========================================
+   BUTTON COMPONENT
+   ========================================= */
+.radix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-sans);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.radix-btn-full {
+  width: 100%;
+}
+
+/* Sizes */
+.radix-btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: var(--font-size-xs);
+}
+
+.radix-btn-md {
+  height: 38px;
+  padding: 0 14px;
+  font-size: var(--font-size-sm);
+}
+
+.radix-btn-lg {
+  height: 44px;
+  padding: 0 18px;
+  font-size: var(--font-size-base);
+}
+
+/* Variants */
+.radix-btn-primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  border: 1px solid var(--color-primary-hover);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08), 0 2px 4px rgba(2, 132, 199, 0.2);
+  transition: all 0.15s ease;
+}
+
+.radix-btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-active);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.radix-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+}
+
+.radix-btn-secondary {
+  background: #ffffff;
+  color: var(--color-text-primary);
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: all 0.15s ease;
+}
+
+.radix-btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+}
+
+.radix-btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.radix-btn-outline {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  transition: all 0.15s ease;
+}
+
+.radix-btn-outline:hover:not(:disabled) {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.1);
+}
+
+.radix-btn-outline:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.radix-btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.radix-btn-ghost:hover:not(:disabled) {
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+.radix-btn-danger {
+  background: var(--color-priority-high-solid);
+  color: #ffffff;
+  border: 1px solid #b91c1c;
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
+  transition: all 0.15s ease;
+}
+
+.radix-btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #991b1b;
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+  transform: translateY(-1px);
+}
+
+.radix-btn-google {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.radix-btn-google:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: var(--color-text-primary);
+}
+
+.radix-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.radix-btn-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.spinner-icon {
+  animation: radixSpin 0.9s linear infinite;
+}
+
+@keyframes radixSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================
+   INPUT COMPONENT
+   ========================================= */
+.radix-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.radix-input-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.required-star {
+  color: var(--color-priority-high-solid);
+  margin-left: 2px;
+}
+
+.radix-input-box {
+  width: 100%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.radix-input-box:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.has-error .radix-input-box {
+  border-color: var(--color-priority-high-solid);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.radix-input-left-icon {
+  color: var(--color-text-light);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.radix-input-control {
+  flex: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.radix-input-control::placeholder {
+  color: var(--color-text-light);
+}
+
+.radix-input-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.radix-input-toggle-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.radix-input-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-2xs);
+  color: var(--color-priority-high-solid);
+  margin-top: 1px;
+}
+
+.error-icon {
+  flex-shrink: 0;
+}
+
+.radix-input-helper {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+}
+
+/* =========================================
+   CARD COMPONENT
+   ========================================= */
+.radix-card {
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.radix-card-elevated {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.radix-card-elevated:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.06);
+}
+
+.radix-card-outlined {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.radix-card-dark {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  color: #ffffff;
+}
+
+.radix-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.radix-card-title {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.radix-card-dark .radix-card-title {
+  color: var(--color-pacs-text);
+}
+
+.radix-card-description {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.radix-card-dark .radix-card-description {
+  color: var(--color-pacs-muted);
+}
+
+/* =========================================
+   BADGE COMPONENT
+   ========================================= */
+.radix-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-family-sans);
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.radix-badge-sm {
+  padding: 2px 6px;
+  font-size: var(--font-size-2xs);
+}
+
+.radix-badge-md {
+  padding: 3px 8px;
+  font-size: var(--font-size-xs);
+}
+
+.radix-badge-high {
+  background: var(--color-priority-high-bg);
+  color: var(--color-priority-high-text);
+  border: 1px solid var(--color-priority-high-border);
+}
+
+.radix-badge-medium {
+  background: var(--color-priority-med-bg);
+  color: var(--color-priority-med-text);
+  border: 1px solid var(--color-priority-med-border);
+}
+
+.radix-badge-low {
+  background: var(--color-priority-low-bg);
+  color: var(--color-priority-low-text);
+  border: 1px solid var(--color-priority-low-border);
+}
+
+.radix-badge-info {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
+}
+
+.radix-badge-cyan {
+  background: var(--color-cyan-50);
+  color: var(--color-cyan-400);
+  border: 1px solid var(--color-cyan-100);
+}
+
+.radix-badge-neutral {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+.radix-badge-dark {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid #1e293b;
+}
+
+.radix-badge-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* =========================================
+   EMPTY STATE COMPONENT
+   ========================================= */
+.radix-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  min-height: 240px;
+}
+
+.radix-empty-state.compact {
+  padding: var(--space-4) var(--space-2);
+  min-height: 140px;
+}
+
+.radix-empty-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  color: #0f172a;
+  margin-bottom: var(--space-3);
+}
+
+.radix-empty-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.radix-empty-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  max-width: 360px;
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+}
+
+.radix-empty-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* =========================================
+   SKELETON LOADING COMPONENT
+   ========================================= */
+.radix-skeleton {
+  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 35%, #ffffff 50%, #e2e8f0 65%, #f1f5f9 100%);
+  background-size: 250% 100%;
+  animation: radixSkeletonShimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  border-radius: var(--radius-xs);
+}
+
+@keyframes radixSkeletonShimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.radix-skeleton-text {
+  height: 14px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.radix-skeleton-circle {
+  border-radius: 50%;
+}
+
+.radix-skeleton-table-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.radix-skeleton-card {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
