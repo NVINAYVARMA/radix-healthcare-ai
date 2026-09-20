@@ -1,0 +1,12 @@
+{
+  "name": "radix-healthcare-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RADIX Autonomous Emergency Radiology Triage Workstation",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "install:all": "npm --prefix frontend install"
+  }
+}
