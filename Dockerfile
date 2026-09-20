@@ -28,9 +28,8 @@ COPY backend/requirements.txt ./backend/
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r backend/requirements.txt
 
-# Copy Backend Application Code & Data
+# Copy Backend Application Code
 COPY backend/ ./backend/
-COPY data/ ./data/
 
 # Copy Pre-Built Frontend Distribution from Stage 1
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
@@ -49,4 +48,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Launch Application (FastAPI serves both API at /api/v1 and React SPA at /)
 WORKDIR /app/backend
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
