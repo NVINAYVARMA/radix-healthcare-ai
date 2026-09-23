@@ -30,7 +30,7 @@ class ReviewedStudy(Base, TimestampMixin):
     ai_findings: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Reviewer and clinical decision metadata
-    reviewer_id: Mapped[str] = mapped_column(String(64), default="Dr. Sarah Lin, MD", nullable=False)
+    reviewer_id: Mapped[str] = mapped_column(String(128), default="Dr. Attending Radiologist, MD", nullable=False)
     review_status: Mapped[str] = mapped_column(String(32), default="NORMAL", nullable=False, index=True)  # NORMAL, ABNORMAL, CRITICAL, CONFIRMED
     review_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     turnaround_time_mins: Mapped[Optional[float]] = mapped_column(Float, nullable=True)

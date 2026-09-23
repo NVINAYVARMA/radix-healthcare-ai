@@ -98,6 +98,40 @@ export function matchesCurrentUser(uploadedBy) {
 }
 
 /**
+ * Resolves a human-readable, professional clinical name for the reviewer
+ */
+export function formatReviewerName(rawReviewer, uploader) {
+  const activeUser = getCurrentUserObj();
+  const currentDoc = activeUser?.name
+    ? (activeUser.name.startsWith("Dr.") ? activeUser.name : `Dr. ${activeUser.name}`)
+    : null;
+
+  const val = (rawReviewer || "").trim();
+  const legacyPlaceholders = ["dr_radiologist", "Dr. Sarah Lin, MD", "dr_alex_vance", "Dr. Alex Vance, MD", "undefined", "null"];
+  
+  if (!val || legacyPlaceholders.includes(val)) {
+    if (currentDoc) return currentDoc;
+    return "Dr. Attending Radiologist, MD";
+  }
+
+  // If reviewer string is an alias like usr_radix_X or numeric ID
+  const clean = val.replace(/^usr_radix_/, "");
+  if (activeUser && (String(activeUser.id) === clean || String(activeUser.id) === val)) {
+    if (currentDoc) return currentDoc;
+  }
+
+  if (val.includes("@")) {
+    const namePart = val.split("@")[0].replace(/[._-]/g, " ");
+    return `Dr. ${namePart.charAt(0).toUpperCase() + namePart.slice(1)}`;
+  }
+
+  if (!val.toLowerCase().startsWith("dr.") && !val.toLowerCase().startsWith("doctor ")) {
+    return `Dr. ${val}`;
+  }
+  return val;
+}
+
+/**
  * Robustly constructs full image URL from relative storage path or absolute URL
  */
 export function getFullImageUrl(rawPath) {
@@ -970,8 +1004,9 @@ export const studyService = {
     const activeDoctorName =
       activeUser?.name ||
       activeUser?.full_name ||
-      (activeUser?.email ? `Dr. ${activeUser.email.split("@")[0].toUpperCase()}, MD` : "Dr. Alex Vance, MD");
-    const activeDoctorId = activeUser?.id != null ? String(activeUser.id) : (activeUser?.email || "dr_alex_vance");
+      (activeUser?.email ? `Dr. ${activeUser.email.split("@")[0].toUpperCase()}` : "Dr. Attending Radiologist");
+    const cleanDocName = activeDoctorName.startsWith("Dr.") ? activeDoctorName : `Dr. ${activeDoctorName}`;
+    const activeDoctorId = activeUser?.id != null ? String(activeUser.id) : (activeUser?.email || "dr_radiologist");
 
     if (apiClient) {
       try {
@@ -982,7 +1017,7 @@ export const studyService = {
           reviewNotes,
           notes: reviewNotes,
           reviewer_id: activeDoctorId,
-          reviewer_name: activeDoctorName,
+          reviewer_name: cleanDocName,
         });
         if (response?.data) return response.data;
       } catch (err) {
@@ -996,8 +1031,8 @@ export const studyService = {
           ...s,
           status,
           reviewedAt: status === "REVIEWED" ? new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : s.reviewedAt,
-          reviewedBy: status === "REVIEWED" ? activeDoctorName : s.reviewedBy,
-          reviewerId: status === "REVIEWED" ? activeDoctorId : s.reviewerId,
+          reviewedBy: status === "REVIEWED" ? cleanDocName : s.reviewedBy,
+          reviewerId: status === "REVIEWED" ? cleanDocName : s.reviewerId,
           reviewNotes: reviewNotes || s.reviewNotes,
           history: [
             ...(s.history || []),
@@ -1005,8 +1040,8 @@ export const studyService = {
               time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
               event:
                 status === "IN_REVIEW"
-                  ? `Review initiated by ${activeDoctorName}`
-                  : `Study marked as REVIEWED and finalized by ${activeDoctorName}`,
+                  ? `Review initiated by ${cleanDocName}`
+                  : `Study marked as REVIEWED and finalized by ${cleanDocName}`,
             },
           ],
         };
@@ -1077,9 +1112,25 @@ export const studyService = {
    * Connects to POST /api/v1/studies/batch
    */
   async batchUpdateStudies(studyIds, action, payload = {}) {
+    const activeUser = getCurrentUserObj();
+    const activeDoctorName =
+      activeUser?.name ||
+      activeUser?.full_name ||
+      (activeUser?.email ? `Dr. ${activeUser.email.split("@")[0].toUpperCase()}` : "Dr. Attending Radiologist");
+    const cleanDocName = activeDoctorName.startsWith("Dr.") ? activeDoctorName : `Dr. ${activeDoctorName}`;
+    const activeDoctorId = activeUser?.id != null ? String(activeUser.id) : (activeUser?.email || "dr_radiologist");
+
     if (apiClient) {
       try {
-        const response = await apiClient.post("/studies/batch", { studyIds, action, payload });
+        const response = await apiClient.post("/studies/batch", {
+          studyIds,
+          action,
+          reviewer_id: activeDoctorId,
+          reviewer_name: cleanDocName,
+          review_status: "NORMAL",
+          notes: "Batch marked as reviewed",
+          ...payload,
+        });
         return response.data;
       } catch {}
     }
@@ -1087,7 +1138,13 @@ export const studyService = {
     if (action === "markReviewed") {
       activeStudiesCache = activeStudiesCache.map((s) => {
         if (idsSet.has(s.id)) {
-          return { ...s, status: "REVIEWED", reviewedAt: new Date().toLocaleTimeString() };
+          return {
+            ...s,
+            status: "REVIEWED",
+            reviewedAt: new Date().toLocaleTimeString(),
+            reviewedBy: cleanDocName,
+            reviewerId: cleanDocName,
+          };
         }
         return s;
       });
@@ -1115,6 +1172,7 @@ export const studyService = {
             const normScore = rawScore > 1 ? Number((rawScore / 100.0).toFixed(2)) : Number(rawScore.toFixed(2));
             const rawConf = item.ai_confidence ?? 88;
             const normConf = rawConf > 1 ? Number((rawConf / 100.0).toFixed(2)) : Number(rawConf.toFixed(2));
+            const clinicianName = formatReviewerName(item.reviewer_id, item.uploaded_by);
 
             return {
               ...item,
@@ -1138,7 +1196,7 @@ export const studyService = {
               factors: [{ description: pFindings, contribution: 0.9 }],
               status: "Reviewed",
               reviewStatus: item.review_status || "NORMAL",
-              reviewerId: item.reviewer_id || "Dr. Sarah Lin, MD",
+              reviewerId: clinicianName,
               reviewNotes: item.review_notes || "Clinical sign-off recorded.",
               turnaroundTimeMins: item.turnaround_time_mins != null ? Number(item.turnaround_time_mins.toFixed(1)) : null,
               arrivalTime: formatArrivalTime(item.arrival_time),
@@ -1152,7 +1210,7 @@ export const studyService = {
               patientDetails: {
                 dob: `19${Math.max(40, 95 - pAge)}-05-14`,
                 mrn: `MRN-${String(item.patient_id || "").replace(/\D/g, "") || item.id || 1001}`,
-                referringDoctor: item.reviewer_id || "Dr. Sarah Lin, MD",
+                referringDoctor: clinicianName,
                 department: "Emergency Medicine",
                 clinicalHistory: item.clinical_notes || pFindings,
                 vitals: "SpO2: 98% | HR: 74 bpm | BP: 120/80 mmHg",

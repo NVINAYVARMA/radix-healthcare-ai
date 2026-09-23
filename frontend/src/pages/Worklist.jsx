@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import WorklistTable from "../components/WorklistTable";
 import UploadModal from "../components/UploadModal";
-import { studyService, getCurrentUserId } from "../services/studyService";
+import { studyService, getCurrentUserId, getCurrentUserObj } from "../services/studyService";
 import "./Dashboard.css";
 
 export const Worklist = () => {
@@ -59,10 +59,14 @@ export const Worklist = () => {
   // Manual priority override handler
   const handleOverridePriority = async (overrideData) => {
     const { studyId, newPriority, reason } = overrideData;
+    const activeUser = getCurrentUserObj();
+    const activeDoctorName = activeUser?.name
+      ? (activeUser.name.startsWith("Dr.") ? activeUser.name : `Dr. ${activeUser.name}`)
+      : "Dr. Attending Radiologist, MD";
     await studyService.overrideStudyPriority(studyId, {
       newPriority,
       reason,
-      overriddenBy: "Dr. Alex Vance, MD",
+      overriddenBy: activeDoctorName,
     });
     setStudies((prev) =>
       prev.map((s) => {
@@ -76,7 +80,7 @@ export const Worklist = () => {
               originalScore: s.priorityScore,
               newPriority,
               reason,
-              overriddenBy: "Dr. Alex Vance, MD",
+              overriddenBy: activeDoctorName,
               overriddenAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             },
           };

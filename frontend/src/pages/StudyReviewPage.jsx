@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation, useSearchParams } from "react-rout
 import { Activity } from "lucide-react";
 import StudyViewer from "../components/StudyViewer";
 import PacsLoader from "../components/ui/PacsLoader";
-import { studyService } from "../services/studyService";
+import { studyService, getCurrentUserObj } from "../services/studyService";
 import "./StudyReviewPage.css";
 
 export const StudyReviewPage = () => {
@@ -132,7 +132,11 @@ export const StudyReviewPage = () => {
 
   const handleOverridePriority = async (overrideData) => {
     const { studyId: sId, newPriority, reason } = overrideData;
-    await studyService.overrideStudyPriority(sId, overrideData);
+    const activeUser = getCurrentUserObj();
+    const activeDoctorName = activeUser?.name
+      ? (activeUser.name.startsWith("Dr.") ? activeUser.name : `Dr. ${activeUser.name}`)
+      : "Dr. Attending Radiologist, MD";
+    await studyService.overrideStudyPriority(sId, { ...overrideData, overriddenBy: activeDoctorName });
     const overriddenAt = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     const overrideObj = {
@@ -140,7 +144,7 @@ export const StudyReviewPage = () => {
       originalScore: study.priorityScore,
       newPriority,
       reason,
-      overriddenBy: "Dr. Alex Vance, MD",
+      overriddenBy: activeDoctorName,
       overriddenAt,
     };
 

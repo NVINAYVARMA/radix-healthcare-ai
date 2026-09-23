@@ -374,6 +374,7 @@ class StudyService:
         study_id: str,
         action: str,
         reviewer_id: Optional[str] = None,
+        reviewer_name: Optional[str] = None,
         review_status: Optional[str] = None,
         notes: Optional[str] = None
     ) -> Tuple[Study, ReviewLog]:
@@ -385,6 +386,14 @@ class StudyService:
         study = await self.get_study(db, study_id)
         if not study:
             raise HTTPException(status_code=404, detail=f"Study {study_id} not found")
+
+        from app.services.reviewed_service import resolve_clinician_name, reviewed_service
+        clinical_name = resolve_clinician_name(
+            db,
+            reviewer_id=reviewer_id,
+            reviewer_name=reviewer_name,
+            study=study
+        )
 
         action_upper = action.upper()
         if action_upper in ("STARTED_REVIEW", "IN_REVIEW", "OPENED"):
@@ -398,7 +407,7 @@ class StudyService:
             study_id=study.study_id,
             action=action_upper,
             review_status=review_status.upper() if review_status else None,
-            reviewer_id=reviewer_id or "dr_radiologist",
+            reviewer_id=clinical_name,
             notes=notes
         )
         db.add(review_log)
@@ -406,11 +415,11 @@ class StudyService:
         # Store in reviewed_studies archive table if finalized
         if action_upper in ("COMPLETED_REVIEW", "REVIEWED", "APPROVED", "SIGNED_OFF"):
             try:
-                from app.services.reviewed_service import reviewed_service
                 reviewed_service.record_reviewed_study(
                     db=db,
                     study=study,
-                    reviewer_id=reviewer_id,
+                    reviewer_id=clinical_name,
+                    reviewer_name=clinical_name,
                     review_status=review_status,
                     notes=notes
                 )
@@ -619,7 +628,7 @@ class StudyService:
                 reviewer = last_review.reviewer_id
 
         if not reviewer and study and is_reviewed:
-            reviewer = study.assigned_radiologist or "Attending Radiologist"
+            reviewer = getattr(study, "assigned_radiologist", None) or "Attending Radiologist"
 
         # Permission check:
         # 1. Clinically Reviewed Studies: ONLY the reviewing physician can delete

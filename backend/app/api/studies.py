@@ -295,6 +295,7 @@ async def submit_study_review(
         study_id=study_id,
         action=action,
         reviewer_id=payload.reviewer_id,
+        reviewer_name=getattr(payload, "reviewer_name", None),
         review_status=payload.review_status,
         notes=notes
     )
@@ -319,8 +320,10 @@ async def override_study_priority(
     Manually override the priority level of a study with an audit reason.
     CRITICAL SAFETY REQUIREMENT: Preserves original AI score and priority score.
     """
+    from app.services.reviewed_service import resolve_clinician_name
     manual_priority = (payload.manual_priority or payload.newPriority or "HIGH").upper()
-    reviewer_id = payload.reviewer_id or payload.overriddenBy or "Dr. Alex Vance, MD"
+    raw_rev = payload.reviewer_id or payload.overriddenBy
+    reviewer_id = resolve_clinician_name(db, reviewer_id=raw_rev)
     reason = payload.reason or "Clinical reassessment"
 
     study = await study_service.override_priority(
@@ -347,34 +350,47 @@ async def batch_update_studies(payload: dict, db: Session = Depends(get_db)):
     Batch actions on multiple studies (e.g. batch mark reviewed).
     """
     from app.models.study import StudyStatus
+    from app.services.reviewed_service import resolve_clinician_name, reviewed_service
+
     study_ids = payload.get("studyIds") or payload.get("study_ids") or []
     action = payload.get("action", "markReviewed")
+    inner_payload = payload.get("payload") if isinstance(payload.get("payload"), dict) else {}
+    req_reviewer_id = payload.get("reviewer_id") or inner_payload.get("reviewer_id")
+    req_reviewer_name = payload.get("reviewer_name") or inner_payload.get("reviewer_name")
+    req_review_status = payload.get("review_status") or inner_payload.get("review_status", "NORMAL")
+    req_notes = payload.get("notes") or inner_payload.get("notes", "Batch marked as reviewed")
     updated_count = 0
 
     for sid in study_ids:
         study = await study_service.get_study(db, str(sid))
         if study:
             if action in ("markReviewed", "REVIEWED"):
+                clinician_name = resolve_clinician_name(
+                    db,
+                    reviewer_id=req_reviewer_id,
+                    reviewer_name=req_reviewer_name,
+                    study=study
+                )
                 study.status = StudyStatus.REVIEWED.value
                 from app.models.review import ReviewLog
                 review_log = ReviewLog(
                     study_id=study.study_id,
                     action="COMPLETED_REVIEW",
-                    review_status=payload.get("review_status", "NORMAL"),
-                    reviewer_id=payload.get("reviewer_id", "dr_radiologist"),
-                    notes=payload.get("notes", "Batch marked as reviewed")
+                    review_status=req_review_status,
+                    reviewer_id=clinician_name,
+                    notes=req_notes
                 )
                 db.add(review_log)
                 try:
-                    from app.services.reviewed_service import reviewed_service
                     reviewed_service.record_reviewed_study(
                         db=db,
                         study=study,
-                        reviewer_id=payload.get("reviewer_id", "dr_radiologist"),
-                        review_status=payload.get("review_status", "NORMAL"),
-                        notes=payload.get("notes", "Batch marked as reviewed")
+                        reviewer_id=clinician_name,
+                        reviewer_name=clinician_name,
+                        review_status=req_review_status,
+                        notes=req_notes
                     )
-                except Exception as e:
+                except Exception:
                     pass
                 updated_count += 1
     db.commit()

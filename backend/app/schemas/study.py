@@ -139,7 +139,8 @@ class StudyDetailResponse(BaseModel):
 class ReviewActionRequest(BaseModel):
     action: Optional[str] = None
     status: Optional[str] = None
-    reviewer_id: Optional[str] = "dr_radiologist"
+    reviewer_id: Optional[str] = None
+    reviewer_name: Optional[str] = None
     review_status: Optional[str] = "NORMAL"
     notes: Optional[str] = None
     reviewNotes: Optional[str] = None

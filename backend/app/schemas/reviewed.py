@@ -21,7 +21,7 @@ class ReviewedStudyItem(BaseModel):
     ai_confidence: Optional[float] = None
     ai_findings: Optional[str] = None
 
-    reviewer_id: str = "Dr. Sarah Lin, MD"
+    reviewer_id: str = "Dr. Attending Radiologist, MD"
     review_status: str = "NORMAL"
     review_notes: Optional[str] = None
     turnaround_time_mins: Optional[float] = None

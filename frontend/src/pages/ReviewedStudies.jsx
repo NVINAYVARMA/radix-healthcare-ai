@@ -22,7 +22,7 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react";
-import { studyService, getCurrentUserId, matchesCurrentUser } from "../services/studyService";
+import { studyService, getCurrentUserId, matchesCurrentUser, formatReviewerName } from "../services/studyService";
 import { TableSkeletonRows } from "../components/ui/LoadingSkeleton";
 import "./ReviewedStudies.css";
 
@@ -556,8 +556,9 @@ export const ReviewedStudies = () => {
                     ? "status-abnormal"
                     : "status-normal";
 
-                const reviewer = study.reviewerId || study.reviewer_id || study.reviewedBy;
-                const canDelete = matchesCurrentUser(reviewer);
+                const rawRev = study.reviewerId || study.reviewer_id || study.reviewedBy;
+                const reviewer = formatReviewerName(rawRev, study.uploaded_by || study.uploadedBy);
+                const canDelete = matchesCurrentUser(rawRev) || matchesCurrentUser(reviewer) || matchesCurrentUser(study.uploaded_by || study.uploadedBy);
 
                 return (
                   <tr key={study.studyId} className={`reviewed-table-row ${isSelected ? "row-selected" : ""}`}>
@@ -656,7 +657,7 @@ export const ReviewedStudies = () => {
 
                     {/* Reviewer */}
                     <td className="td-reviewer">
-                      <span className="reviewer-name-text">{study.reviewerId || "Dr. Sarah Lin, MD"}</span>
+                      <span className="reviewer-name-text">{reviewer}</span>
                     </td>
 
                     {/* Sign-off Time & Turnaround */}
@@ -773,7 +774,7 @@ export const ReviewedStudies = () => {
                 <div className="report-meta-grid">
                   <div className="meta-box">
                     <span className="meta-lbl">Reviewing Radiologist</span>
-                    <strong className="meta-val">{selectedReport.reviewerId}</strong>
+                    <strong className="meta-val">{formatReviewerName(selectedReport.reviewerId, selectedReport.uploaded_by || selectedReport.uploadedBy)}</strong>
                   </div>
                   <div className="meta-box">
                     <span className="meta-lbl">Final Clinical Status</span>
