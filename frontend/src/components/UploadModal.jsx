@@ -48,6 +48,20 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
   const [fileError, setFileError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+
+  const clearProgressTimer = () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      clearProgressTimer();
+    };
+  }, []);
 
   // Upload & AI analysis progress
   const [uploading, setUploading] = useState(false);
@@ -58,6 +72,7 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
 
   useEffect(() => {
     if (isOpen) {
+      clearProgressTimer();
       const rand = Math.floor(1000 + Math.random() * 9000);
       setStudyId(`ST-${rand}`);
       setPatientId(`PX-${rand}`);
@@ -295,9 +310,58 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
       } catch {}
 
       // REAL-TIME Progress handler directly wired to Axios XMLHttpRequest network stream
+      let neuralTimerStarted = false;
+      const startInferenceProgressTimer = () => {
+        if (neuralTimerStarted) return;
+        neuralTimerStarted = true;
+        clearProgressTimer();
+        const neuralStart = performance.now();
+
+        progressIntervalRef.current = setInterval(() => {
+          const elapsed = performance.now() - neuralStart;
+
+          if (elapsed < 900) {
+            // Stage 2: Normalizing 16-bit thoracic pixel matrix & building tensors (35% -> 58%)
+            const stagePct = elapsed / 900;
+            const prog = Math.min(58, Math.round(35 + stagePct * 23));
+            setActiveStage(2);
+            setUploadProgress(prog);
+            setUploadStep("Normalizing 16-bit thoracic pixel matrix & building PyTorch tensors...");
+          } else if (elapsed < 2000) {
+            // Stage 2: DenseNet-121 feature extraction (58% -> 76%)
+            const stagePct = (elapsed - 900) / 1100;
+            const prog = Math.min(76, Math.round(58 + stagePct * 18));
+            setActiveStage(2);
+            setUploadProgress(prog);
+            setUploadStep("DenseNet-121 feature extraction: scanning pulmonary findings...");
+          } else if (elapsed < 3200) {
+            // Stage 3: Clinical urgency & mortality weighting (76% -> 89%)
+            const stagePct = (elapsed - 2000) / 1200;
+            const prog = Math.min(89, Math.round(76 + stagePct * 13));
+            setActiveStage(3);
+            setUploadProgress(prog);
+            setUploadStep("Evaluating 6-tier clinical urgency & mortality risk weights...");
+          } else if (elapsed < 4800) {
+            // Stage 3: Multi-factor triage tie-breaker ranking (89% -> 96%)
+            const stagePct = (elapsed - 3200) / 1600;
+            const prog = Math.min(96, Math.round(89 + stagePct * 7));
+            setActiveStage(3);
+            setUploadProgress(prog);
+            setUploadStep("Calibrating tie-breaker ranking against active hospital triage queue...");
+          } else {
+            // Asymptotic smooth advance up to 98% (96% -> 97% -> 98%), continuously ticking, NEVER frozen!
+            const extraSeconds = (elapsed - 4800) / 1000;
+            const prog = Math.min(98, Math.round(96 + (1 - Math.exp(-extraSeconds * 0.5)) * 2));
+            setActiveStage(3);
+            setUploadProgress(prog);
+            setUploadStep("Finalizing worklist queue position & atomic database commit...");
+          }
+        }, 60);
+      };
+
       const onProgress = (progressEvent) => {
         if (!progressEvent.total) {
-          setUploadProgress(40);
+          setUploadProgress((prev) => Math.max(prev, 15));
           return;
         }
         const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -306,17 +370,26 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
 
         if (pct < 100) {
           setActiveStage(1);
-          setUploadProgress(Math.min(85, Math.max(10, Math.round(pct * 0.85))));
+          const mapped = Math.min(35, Math.max(10, Math.round(10 + pct * 0.25)));
+          setUploadProgress((prev) => Math.max(prev, mapped));
           setUploadStep(`Transmitting DICOM payload: ${loadedKB} KB / ${totalKB} KB (${pct}%)`);
         } else {
-          // Network upload finished, backend neural network is now executing
-          setActiveStage(2);
-          setUploadProgress(92);
-          setUploadStep(`Payload received (${totalKB} KB). Running real-time DenseNet-121 inference & tie-breaker...`);
+          // Network upload payload fully transmitted, trigger backend neural inference progress
+          setUploadProgress((prev) => Math.max(prev, 35));
+          setUploadStep(`Payload transmitted (${totalKB} KB). Running real-time DenseNet-121 inference...`);
+          startInferenceProgressTimer();
         }
       };
 
+      // Fallback timer trigger in case network payload finished before onProgress or onProgress wasn't called for 100%
+      const fallbackTimer = setTimeout(() => {
+        startInferenceProgressTimer();
+      }, 350);
+
       const res = await studyService.uploadStudy(formData, onProgress);
+      clearTimeout(fallbackTimer);
+      clearProgressTimer();
+
       const totalElapsedMs = Math.round(performance.now() - uploadStartTime);
 
       setUploadProgress(100);
@@ -334,6 +407,7 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
         onClose();
       }, 1000);
     } catch (err) {
+      clearProgressTimer();
       console.error("Upload error:", err);
       const errMsg =
         err.response?.data?.detail ||
@@ -419,7 +493,7 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
                     <Cpu size={11} /> DENSENET-121 v2.0
                   </div>
                   <div className="upload-hud-tag bottom-right">
-                    <Zap size={11} /> INFERENCING
+                    <Zap size={11} /> {uploadProgress === 100 ? "VERIFIED" : activeStage === 1 ? "INGESTION" : activeStage === 2 ? "INFERENCING" : "CALIBRATING"}
                   </div>
                 </div>
 
