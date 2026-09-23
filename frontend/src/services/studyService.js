@@ -939,6 +939,13 @@ export const studyService = {
    * Connects to PATCH /api/v1/studies/{study_id}/review
    */
   async updateReviewStatus(studyId, status, reviewNotes = "") {
+    const activeUser = getCurrentUserObj();
+    const activeDoctorName =
+      activeUser?.name ||
+      activeUser?.full_name ||
+      (activeUser?.email ? `Dr. ${activeUser.email.split("@")[0].toUpperCase()}, MD` : "Dr. Alex Vance, MD");
+    const activeDoctorId = activeUser?.id != null ? String(activeUser.id) : (activeUser?.email || "dr_alex_vance");
+
     if (apiClient) {
       try {
         const action = status === "IN_REVIEW" ? "STARTED_REVIEW" : "COMPLETED_REVIEW";
@@ -947,7 +954,8 @@ export const studyService = {
           status,
           reviewNotes,
           notes: reviewNotes,
-          reviewer_id: "dr_alex_vance",
+          reviewer_id: activeDoctorId,
+          reviewer_name: activeDoctorName,
         });
         if (response?.data) return response.data;
       } catch (err) {
@@ -960,8 +968,9 @@ export const studyService = {
         return {
           ...s,
           status,
-          reviewedAt: status === "REVIEWED" ? new Date().toLocaleTimeString() : s.reviewedAt,
-          reviewedBy: status === "REVIEWED" ? "Dr. Alex Vance, MD" : s.reviewedBy,
+          reviewedAt: status === "REVIEWED" ? new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : s.reviewedAt,
+          reviewedBy: status === "REVIEWED" ? activeDoctorName : s.reviewedBy,
+          reviewerId: status === "REVIEWED" ? activeDoctorId : s.reviewerId,
           reviewNotes: reviewNotes || s.reviewNotes,
           history: [
             ...(s.history || []),
@@ -969,14 +978,19 @@ export const studyService = {
               time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
               event:
                 status === "IN_REVIEW"
-                  ? "Review initiated by attending radiologist"
-                  : "Study marked as REVIEWED and finalized",
+                  ? `Review initiated by ${activeDoctorName}`
+                  : `Study marked as REVIEWED and finalized by ${activeDoctorName}`,
             },
           ],
         };
       }
       return s;
     });
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("radix_cached_studies", JSON.stringify(activeStudiesCache));
+      }
+    } catch {}
     return { success: true, studyId, status };
   },
 
@@ -1058,11 +1072,7 @@ export const studyService = {
    * Fetch archive of reviewed studies from backend /api/v1/reviewed-studies
    */
   async getReviewedStudies(params = {}) {
-    const activeUserId = getCurrentUserId();
     const queryParams = { ...params };
-    if (!queryParams.user_id && activeUserId) {
-      queryParams.user_id = activeUserId;
-    }
     if (apiClient) {
       try {
         const response = await apiClient.get("/reviewed-studies", { params: queryParams });
@@ -1143,15 +1153,26 @@ export const studyService = {
         console.warn("Backend reviewed studies fetch failed, using fallback:", err);
       }
     }
-    const reviewed = activeStudiesCache.filter((s) => s.status === "REVIEWED" || s.status === "Reviewed");
+    let reviewed = activeStudiesCache.filter((s) => s.status === "REVIEWED" || s.status === "Reviewed");
+    if (reviewed.length === 0 && Array.isArray(mockStudies)) {
+      reviewed = mockStudies.slice(0, 3).map((s) => ({
+        ...s,
+        status: "Reviewed",
+        reviewStatus: s.priority === "High" ? "CRITICAL" : "NORMAL",
+        reviewedBy: "Dr. Alex Vance, MD",
+        reviewedAt: "10:15 AM",
+        reviewNotes: "Diagnostic review finalized. Findings communicated to ED acute team.",
+        turnaroundTimeMins: 14.2,
+      }));
+    }
     return {
       items: reviewed,
       total: reviewed.length,
       stats: {
         total_reviewed: reviewed.length,
-        critical_count: reviewed.filter((i) => i.priority === "High").length,
-        abnormal_count: 0,
-        normal_count: reviewed.length,
+        critical_count: reviewed.filter((i) => i.priority === "High" || i.priorityLevel === "HIGH").length,
+        abnormal_count: reviewed.filter((i) => i.priority === "Medium").length,
+        normal_count: reviewed.filter((i) => i.priority === "Low" || i.priority === "Standard").length,
         avg_turnaround_time_mins: 18.5,
         reviewed_today_count: reviewed.length,
       },

@@ -1,0 +1,323 @@
+/* ==============================================================================
+   RADIX MEDICAL PACS SCANNER LOADER STYLESHEET
+   Professional Aidoc / Philips Healthcare Grade Animation Canvas
+   ============================================================================== */
+
+.pacs-loader-fullscreen {
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #020617;
+  padding: 24px;
+}
+
+.pacs-scanner-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px -15px rgba(2, 6, 23, 0.8),
+              0 0 30px rgba(2, 132, 199, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hologram Scanner Viewport */
+.pacs-scanner-viewport {
+  width: 100%;
+  height: 220px;
+  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grid Overlay */
+.pacs-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.07) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+/* Sweeping Laser Scanline */
+.pacs-laser-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #38bdf8, #0284c7, #38bdf8, transparent);
+  box-shadow: 0 0 16px #38bdf8, 0 0 32px rgba(56, 189, 248, 0.6);
+  animation: pacsLaserSweep 2.4s ease-in-out infinite alternate;
+  z-index: 5;
+}
+
+@keyframes pacsLaserSweep {
+  0% { top: 4%; opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { top: 94%; opacity: 0.8; }
+}
+
+/* Stylized Hologram Chest */
+.pacs-hologram-chest {
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  z-index: 2;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+}
+
+.pacs-cardiac-glow {
+  animation: pacsCardiacPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pacsCardiacPulse {
+  0%, 100% { fill: rgba(2, 132, 199, 0.15); stroke-width: 2; }
+  50% { fill: rgba(56, 189, 248, 0.35); stroke-width: 2.8; }
+}
+
+/* Target Reticles */
+.pacs-reticle-outer {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 1px dashed rgba(56, 189, 248, 0.4);
+  animation: pacsRotateClockwise 12s linear infinite;
+  z-index: 3;
+}
+
+.pacs-reticle-inner {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 1px dotted rgba(2, 132, 199, 0.6);
+  animation: pacsRotateCounter 8s linear infinite;
+  z-index: 3;
+}
+
+@keyframes pacsRotateClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pacsRotateCounter {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+/* ECG Vitals Waveform */
+.pacs-ecg-container {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  overflow: hidden;
+  z-index: 4;
+  opacity: 0.85;
+}
+
+.pacs-ecg-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pacs-ecg-path {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: pacsEcgDraw 2.2s linear infinite;
+  filter: drop-shadow(0 0 4px #38bdf8);
+}
+
+@keyframes pacsEcgDraw {
+  0% { stroke-dashoffset: 400; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* HUD Telemetry Badges */
+.pacs-hud-badge {
+  position: absolute;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(2, 6, 23, 0.75);
+  border: 0.5px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 6;
+}
+
+.pacs-hud-badge.top-left { top: 8px; left: 8px; }
+.pacs-hud-badge.top-right { top: 8px; right: 8px; }
+.pacs-hud-badge.bottom-left { bottom: 8px; left: 8px; }
+.pacs-hud-badge.bottom-right { bottom: 8px; right: 8px; }
+
+.dot-live {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pacsBlink 1s infinite;
+}
+
+@keyframes pacsBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Info Box below Scanner */
+.pacs-loader-info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 18px;
+}
+
+.pacs-loader-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pacs-spinner-ring {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.2);
+  border-top-color: #38bdf8;
+  animation: pacsRotateClockwise 0.8s linear infinite;
+}
+
+.pacs-loader-title {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.pacs-loader-subtitle {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 4px 0 10px 0;
+  max-width: 320px;
+  line-height: 1.4;
+}
+
+.pacs-telemetry-step-box {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.pacs-telemetry-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  padding: 3px 10px;
+}
+
+.step-sparkle-icon {
+  color: #38bdf8;
+  animation: pacsBlink 1.5s infinite;
+}
+
+.pacs-loader-progress-track {
+  width: 100%;
+  height: 4px;
+  background: #1e293b;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.pacs-loader-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #0284c7);
+  background-size: 200% 100%;
+  animation: pacsProgressSlide 1.6s ease-in-out infinite;
+}
+
+@keyframes pacsProgressSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Compact Mode */
+.pacs-loader-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 8px;
+}
+
+.pacs-scanner-hud-mini {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pacs-hud-ring-mini {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(56, 189, 248, 0.2);
+  border-top-color: #38bdf8;
+  animation: pacsRotateClockwise 0.8s linear infinite;
+}
+
+.pacs-pulse-icon-mini {
+  color: #38bdf8;
+  animation: pacsBlink 1.2s infinite;
+}
+
+.pacs-compact-text {
+  font-size: 0.78rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #e2e8f0;
+}

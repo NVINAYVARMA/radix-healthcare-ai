@@ -3366,5 +3366,14 @@
   }
 }
 
+/* Shimmer Skeleton Rows */
+.worklist-skeleton-row {
+  border-bottom: 0.5px solid #0f172a;
+  background: #ffffff;
+  animation: radixFadeIn 0.25s ease-out;
+}
 
-
+.worklist-skeleton-row td {
+  padding: 10px 12px;
+  vertical-align: middle;
+}

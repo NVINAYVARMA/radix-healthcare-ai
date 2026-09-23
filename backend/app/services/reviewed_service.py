@@ -144,8 +144,12 @@ class ReviewedStudiesService:
                 uid_part = user_id.replace("usr_radix_", "")
                 if uid_part.isdigit():
                     possible_ids.add(uid_part)
-            
-            query = query.join(Study, ReviewedStudy.study_id == Study.study_id).where(Study.uploaded_by.in_(possible_ids))
+            # Check if there are user-specific reviews or uploads
+            user_query = query.join(Study, ReviewedStudy.study_id == Study.study_id).where(
+                (Study.uploaded_by.in_(possible_ids)) | (ReviewedStudy.reviewer_id.in_(possible_ids))
+            )
+            if db.scalar(select(func.count()).select_from(user_query.subquery())) > 0:
+                query = user_query
 
         if search and search.strip():
             s = f"%{search.strip().lower()}%"

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Activity } from "lucide-react";
 import StudyViewer from "../components/StudyViewer";
+import PacsLoader from "../components/ui/PacsLoader";
 import { studyService } from "../services/studyService";
 import "./StudyReviewPage.css";
 
@@ -206,16 +207,10 @@ export const StudyReviewPage = () => {
 
   if (!study) {
     return (
-      <div className="study-review-loading">
-        <div className="pacs-loader-ring">
-          <Activity size={36} className="pulse-svg" />
-        </div>
-        <h3>Acquiring DICOM Series</h3>
-        <p>Loading PACS diagnostic series & AI urgency factors...</p>
-        <div className="pacs-loader-track">
-          <div className="pacs-loader-fill"></div>
-        </div>
-      </div>
+      <PacsLoader
+        title="Acquiring DICOM Diagnostic Series"
+        subtitle="Streaming 16-bit PACS series & synthesizing AI priority vectors..."
+      />
     );
   }
 

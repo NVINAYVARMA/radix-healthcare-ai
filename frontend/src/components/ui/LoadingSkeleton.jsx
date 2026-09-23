@@ -1,4 +1,5 @@
 import React from "react";
+import "./LoadingSkeleton.css";
 
 export function Skeleton({ width, height, circle, className = "", style = {} }) {
   const inlineStyle = {
@@ -16,7 +17,7 @@ export function Skeleton({ width, height, circle, className = "", style = {} }) 
   );
 }
 
-export function TableRowSkeleton({ _columns = 8, rows = 5 }) {
+export function TableRowSkeleton({ rows = 5 }) {
   return (
     <div className="radix-table-skeleton" style={{ width: "100%" }}>
       {Array.from({ length: rows }).map((_, rIdx) => (
@@ -37,6 +38,55 @@ export function TableRowSkeleton({ _columns = 8, rows = 5 }) {
   );
 }
 
+export function TableSkeletonRows({ rows = 5, columns = 8 }) {
+  return (
+    <>
+      {Array.from({ length: rows }).map((_, rIdx) => (
+        <tr key={rIdx} className="radix-table-shimmer-row">
+          <td style={{ padding: "12px 14px", width: "36px" }}>
+            <Skeleton width="16px" height="16px" style={{ borderRadius: "4px" }} />
+          </td>
+          <td style={{ padding: "12px 14px" }}>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <Skeleton width="34px" height="34px" style={{ borderRadius: "6px", flexShrink: 0 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "130px" }}>
+                <Skeleton width="110px" height="13px" />
+                <Skeleton width="75px" height="10px" />
+              </div>
+            </div>
+          </td>
+          <td style={{ padding: "12px 14px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+              <Skeleton width="75px" height="13px" />
+              <Skeleton width="55px" height="10px" />
+            </div>
+          </td>
+          <td style={{ padding: "12px 14px" }}>
+            <Skeleton width="64px" height="22px" style={{ borderRadius: "12px" }} />
+          </td>
+          <td style={{ padding: "12px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Skeleton width="38px" height="13px" />
+              <Skeleton width="50px" height="6px" style={{ borderRadius: "3px" }} />
+            </div>
+          </td>
+          <td style={{ padding: "12px 14px" }}>
+            <Skeleton width="65px" height="12px" />
+          </td>
+          <td style={{ padding: "12px 14px" }}>
+            <Skeleton width="140px" height="13px" />
+          </td>
+          {columns >= 8 && (
+            <td style={{ padding: "12px 14px", textAlign: "right" }}>
+              <Skeleton width="60px" height="26px" style={{ borderRadius: "6px", marginLeft: "auto" }} />
+            </td>
+          )}
+        </tr>
+      ))}
+    </>
+  );
+}
+
 export function CardSkeleton({ count = 1 }) {
   return (
     <>
@@ -52,4 +102,3 @@ export function CardSkeleton({ count = 1 }) {
 }
 
 export default Skeleton;
-

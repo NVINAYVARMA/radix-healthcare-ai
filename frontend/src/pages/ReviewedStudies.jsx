@@ -23,6 +23,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { studyService, getCurrentUserId, matchesCurrentUser } from "../services/studyService";
+import { TableSkeletonRows } from "../components/ui/LoadingSkeleton";
 import "./ReviewedStudies.css";
 
 export const ReviewedStudies = () => {
@@ -41,6 +42,7 @@ export const ReviewedStudies = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [scopeFilter, setScopeFilter] = useState("ALL"); // "ALL" (Hospital Archive) or "MINE"
   const [selectedStudyIds, setSelectedStudyIds] = useState(new Set());
   const [selectedReport, setSelectedReport] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
@@ -53,7 +55,7 @@ export const ReviewedStudies = () => {
     try {
       const activeUserId = getCurrentUserId();
       const res = await studyService.getReviewedStudies({
-        user_id: activeUserId || undefined,
+        user_id: scopeFilter === "MINE" ? activeUserId || undefined : undefined,
         search: searchQuery || undefined,
         priority: priorityFilter !== "ALL" ? priorityFilter : undefined,
         review_status: statusFilter !== "ALL" ? statusFilter : undefined,
@@ -68,20 +70,22 @@ export const ReviewedStudies = () => {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     loadData();
-  }, [priorityFilter, statusFilter]);
+  }, [priorityFilter, statusFilter, scopeFilter]);
 
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3500);
   };
 
-  // Filtered studies strictly isolated to current logged-in profile
+  // Filtered studies across hospital or scoped to current user
   const filteredStudies = useMemo(() => {
     return studies.filter((item) => {
-      if (item.uploaded_by && !matchesCurrentUser(item.uploaded_by)) return false;
+      if (scopeFilter === "MINE") {
+        const uploader = item.uploaded_by || item.uploadedBy || item.reviewerId;
+        if (uploader && !matchesCurrentUser(uploader)) return false;
+      }
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase().trim();
       return (
@@ -89,10 +93,11 @@ export const ReviewedStudies = () => {
         item.patientId?.toLowerCase().includes(q) ||
         item.studyId?.toLowerCase().includes(q) ||
         item.reviewNotes?.toLowerCase().includes(q) ||
-        item.aiFindings?.toLowerCase().includes(q)
+        item.aiFindings?.toLowerCase().includes(q) ||
+        item.reviewerId?.toLowerCase().includes(q)
       );
     });
-  }, [studies, searchQuery]);
+  }, [studies, searchQuery, scopeFilter]);
 
   // Handle re-opening a study back to the queue
   const handleRevertStudy = async (studyId) => {
@@ -333,6 +338,25 @@ export const ReviewedStudies = () => {
         </div>
 
         <div className="filter-group-right">
+          {/* Scope: Hospital Archive vs My Reviews */}
+          <div className="filter-pill-selector">
+            <span className="filter-group-label">Scope:</span>
+            <button
+              className={`filter-pill-btn ${scopeFilter === "ALL" ? "active" : ""}`}
+              onClick={() => setScopeFilter("ALL")}
+              title="Show all finalized studies across the hospital department"
+            >
+              All Department
+            </button>
+            <button
+              className={`filter-pill-btn ${scopeFilter === "MINE" ? "active" : ""}`}
+              onClick={() => setScopeFilter("MINE")}
+              title="Filter to studies signed off by or assigned to me"
+            >
+              My Reviews
+            </button>
+          </div>
+
           {/* Priority Filter */}
           <div className="filter-pill-selector">
             <span className="filter-group-label">Priority:</span>
@@ -471,14 +495,7 @@ export const ReviewedStudies = () => {
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan="9" className="table-state-cell">
-                  <div className="loading-spinner-box">
-                    <RefreshCw size={24} className="spin-icon" />
-                    <span>Loading reviewed examinations...</span>
-                  </div>
-                </td>
-              </tr>
+              <TableSkeletonRows rows={6} columns={9} />
             ) : filteredStudies.length === 0 ? (
               <tr>
                 <td colSpan="9" className="table-state-cell">
