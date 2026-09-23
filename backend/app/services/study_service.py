@@ -524,43 +524,142 @@ class StudyService:
 
         return study
 
+    @staticmethod
+    def _resolve_user_identifiers(db: Session, ident: Optional[str]) -> set:
+        """
+        Resolves all possible string alias representations of a user
+        (email, numeric ID, 'usr_radix_X', full name, normalized name).
+        """
+        if not ident:
+            return set()
+        from app.models.user import User
+        import re
+
+        clean_ident = ident.strip()
+        results = {clean_ident.lower()}
+
+        # Strip 'usr_radix_' prefix if present
+        clean_no_prefix = re.sub(r"^usr_radix_", "", clean_ident, flags=re.IGNORECASE)
+        results.add(clean_no_prefix.lower())
+
+        # Normalize titles (Dr., MD, DO, PhD, etc.)
+        name_clean = re.sub(r"^(?:dr\.?|doctor)\s+", "", clean_ident, flags=re.IGNORECASE)
+        name_clean = re.sub(r",?\s*(?:md|do|phd|mbbs)$", "", name_clean, flags=re.IGNORECASE).strip()
+        if name_clean:
+            results.add(name_clean.lower())
+
+        # Query database User record
+        u_rec = None
+        if "@" in clean_ident:
+            u_rec = db.query(User).filter(func.lower(User.email) == clean_ident.lower()).first()
+        elif clean_ident.isdigit():
+            results.add(f"usr_radix_{clean_ident}".lower())
+            u_rec = db.query(User).filter(User.id == int(clean_ident)).first()
+        elif clean_ident.lower().startswith("usr_radix_"):
+            suffix = clean_ident[len("usr_radix_"):]
+            if suffix.isdigit():
+                results.add(suffix.lower())
+                u_rec = db.query(User).filter(User.id == int(suffix)).first()
+
+        if not u_rec:
+            u_rec = db.query(User).filter(func.lower(User.name) == clean_ident.lower()).first()
+            if not u_rec and name_clean:
+                u_rec = db.query(User).filter(func.lower(User.name).like(f"%{name_clean.lower()}%")).first()
+
+        if u_rec:
+            results.add(str(u_rec.id).lower())
+            results.add(f"usr_radix_{u_rec.id}".lower())
+            if u_rec.email:
+                results.add(u_rec.email.lower())
+            if u_rec.name:
+                results.add(u_rec.name.lower())
+                u_clean = re.sub(r"^(?:dr\.?|doctor)\s+", "", u_rec.name, flags=re.IGNORECASE)
+                u_clean = re.sub(r",?\s*(?:md|do|phd|mbbs)$", "", u_clean, flags=re.IGNORECASE).strip()
+                if u_clean:
+                    results.add(u_clean.lower())
+
+        return results
+
     async def delete_study(self, db: Session, study_id: str, requesting_user_id: Optional[str] = None) -> bool:
         """
         Deletes a study, its associated database records (factors, reviews, model runs,
         reviewed_studies), its stored image files, and syncs deletion to Firestore.
-        Enforces strict ownership: only the user who uploaded the study can delete it.
+        Enforces strict clinical ownership:
+        - If a scan is clinically reviewed, ONLY the physician who reviewed it can delete it.
+          Other users (including other radiologists and original uploaders) are strictly forbidden.
+        - If a scan is not yet reviewed, only the uploader who sent it can delete it.
         """
         from app.models.reviewed_study import ReviewedStudy
+        from app.models.review import ReviewLog
+        from fastapi import HTTPException
+
         study = db.query(Study).filter_by(study_id=study_id).first()
         reviewed_rec = db.query(ReviewedStudy).filter_by(study_id=study_id).first()
 
         if not study and not reviewed_rec:
             return False
 
-        # Enforce uploader ownership permission
-        uploader = (study.uploaded_by if study else None) or (reviewed_rec.uploaded_by if reviewed_rec else None)
-        if requesting_user_id and requesting_user_id.lower() != "all" and uploader:
-            from app.models.user import User
-            from fastapi import HTTPException
-            possible_ids = {requesting_user_id}
-            if "@" in requesting_user_id:
-                u_rec = db.query(User).filter(func.lower(User.email) == requesting_user_id.lower()).first()
-                if u_rec:
-                    possible_ids.add(f"usr_radix_{u_rec.id}")
-                    possible_ids.add(str(u_rec.id))
-            elif requesting_user_id.isdigit():
-                possible_ids.add(f"usr_radix_{requesting_user_id}")
-            elif requesting_user_id.startswith("usr_radix_"):
-                suffix = requesting_user_id.replace("usr_radix_", "")
-                if suffix.isdigit():
-                    possible_ids.add(suffix)
-                    u_rec = db.query(User).filter(User.id == int(suffix)).first()
-                    if u_rec:
-                        possible_ids.add(u_rec.email)
+        # Determine if this study has been clinically reviewed and identify the reviewing clinician
+        is_reviewed = False
+        reviewer = None
 
-            if uploader not in possible_ids:
-                logger.warning(f"[StudyService] Unauthorized delete attempt on study {study_id} by {requesting_user_id}")
-                raise HTTPException(status_code=403, detail="Permission denied: You can only delete studies sent by your account.")
+        if reviewed_rec:
+            is_reviewed = True
+            reviewer = reviewed_rec.reviewer_id
+        elif study and (study.status == StudyStatus.REVIEWED.value or study.status == "REVIEWED"):
+            is_reviewed = True
+
+        if not reviewer:
+            last_review = db.query(ReviewLog).filter(
+                ReviewLog.study_id == study_id,
+                ReviewLog.action.in_(["COMPLETED_REVIEW", "REVIEWED", "SIGNED_OFF"])
+            ).order_by(ReviewLog.id.desc()).first()
+            if last_review:
+                is_reviewed = True
+                reviewer = last_review.reviewer_id
+
+        if not reviewer and study and is_reviewed:
+            reviewer = study.assigned_radiologist or "Attending Radiologist"
+
+        # Permission check:
+        # 1. Clinically Reviewed Studies: ONLY the reviewing physician can delete
+        if is_reviewed and reviewer:
+            if not requesting_user_id:
+                logger.warning(f"[StudyService] Unauthenticated delete attempt on reviewed study {study_id}")
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Permission denied: This scan has been clinically reviewed by {reviewer}. Other users are not permitted to delete reviewed studies."
+                )
+
+            if requesting_user_id.lower() != "all":
+                req_aliases = self._resolve_user_identifiers(db, requesting_user_id)
+                reviewer_aliases = self._resolve_user_identifiers(db, reviewer)
+
+                if not req_aliases.intersection(reviewer_aliases):
+                    logger.warning(
+                        f"[StudyService] Unauthorized delete attempt on reviewed study {study_id}: "
+                        f"reviewer='{reviewer}', requester='{requesting_user_id}'"
+                    )
+                    raise HTTPException(
+                        status_code=403,
+                        detail=f"Permission denied: This scan has been clinically reviewed by {reviewer}. Other users are not permitted to delete reviewed studies."
+                    )
+        else:
+            # 2. Unreviewed Studies: Only the uploading user can delete
+            uploader = (study.uploaded_by if study else None) or (reviewed_rec.uploaded_by if reviewed_rec else None)
+            if uploader and requesting_user_id and requesting_user_id.lower() != "all":
+                req_aliases = self._resolve_user_identifiers(db, requesting_user_id)
+                uploader_aliases = self._resolve_user_identifiers(db, uploader)
+
+                if not req_aliases.intersection(uploader_aliases):
+                    logger.warning(
+                        f"[StudyService] Unauthorized delete attempt on unreviewed study {study_id}: "
+                        f"uploader='{uploader}', requester='{requesting_user_id}'"
+                    )
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Permission denied: You can only delete unreviewed studies sent by your account."
+                    )
 
         # 1. Delete image file from storage
         target_img_path = (study.image_path if study else None) or (reviewed_rec.image_path if reviewed_rec else None)

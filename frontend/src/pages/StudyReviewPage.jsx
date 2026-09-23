@@ -186,7 +186,11 @@ export const StudyReviewPage = () => {
     if (!study) return;
     const targetKey = study.studyId || study.id;
     try {
-      await studyService.deleteStudy(targetKey);
+      const res = await studyService.deleteStudy(targetKey);
+      if (res && res.error) {
+        alert(`Deletion denied: ${res.error}`);
+        return;
+      }
       if (isReviewedMode) {
         navigate("/reviewed");
       } else {
@@ -194,6 +198,7 @@ export const StudyReviewPage = () => {
       }
     } catch (err) {
       console.error("Failed to delete study:", err);
+      alert(err.message || "Failed to delete study");
     }
   };
 

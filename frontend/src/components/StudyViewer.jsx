@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import PriorityOverrideModal from "./PriorityOverrideModal";
 import WhyPrioritizedPanel from "./WhyPrioritizedPanel";
+import { matchesCurrentUser } from "../services/studyService";
 
 export const StudyViewer = ({
   study,
@@ -56,6 +57,16 @@ export const StudyViewer = ({
   const [actionLoading, setActionLoading] = useState(false);
   const dragStartRef = useRef(null);
   const prevStudyRef = useRef(study?.id);
+
+  const isClinicallyReviewed =
+    study?.status === "Reviewed" ||
+    study?.status === "REVIEWED" ||
+    Boolean(study?.reviewedAt || study?.reviewed_at || study?.reviewerId || study?.reviewer_id);
+
+  const reviewingDoctor = study?.reviewerId || study?.reviewer_id || study?.reviewedBy;
+  const canDeleteStudy = isClinicallyReviewed
+    ? matchesCurrentUser(reviewingDoctor)
+    : matchesCurrentUser(study?.uploaded_by || study?.uploadedBy);
 
   const handleConfirmDelete = async () => {
     if (!onDeleteStudy) return;
@@ -715,7 +726,7 @@ export const StudyViewer = ({
             <span>Override Priority</span>
           </button>
 
-          {onDeleteStudy && (
+          {onDeleteStudy && canDeleteStudy ? (
             <button
               type="button"
               className="pacs-delete-trigger-btn"
@@ -725,7 +736,22 @@ export const StudyViewer = ({
               <Trash2 size={13} />
               <span>Delete Study</span>
             </button>
-          )}
+          ) : onDeleteStudy ? (
+            <button
+              type="button"
+              className="pacs-delete-trigger-btn disabled"
+              disabled
+              title={
+                isClinicallyReviewed
+                  ? `Protected: Clinically reviewed by ${reviewingDoctor || "another physician"}. Other users cannot delete this study.`
+                  : "Protected: Only the uploading clinician can delete this unreviewed study."
+              }
+              style={{ opacity: 0.35, cursor: "not-allowed" }}
+            >
+              <Trash2 size={13} />
+              <span>Delete Study</span>
+            </button>
+          ) : null}
 
           <div className="shortcuts-hint">
             <span>Keys: </span>

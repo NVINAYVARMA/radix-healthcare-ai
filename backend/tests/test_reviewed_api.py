@@ -82,3 +82,86 @@ def test_revert_reviewed_study(client):
     # Check that it is back in active queue
     queue_data = client.get("/api/v1/queue").json()
     assert study_id in [it["study_id"] for it in queue_data["items"]]
+
+
+def test_reviewed_study_deletion_permissions(client):
+    """
+    Verifies that when a scan is clinically reviewed:
+    1. Other users (including original uploader or other clinicians) cannot delete it (403 Forbidden).
+    2. ONLY the reviewing clinician can delete the reviewed study.
+    """
+    study_id = "XR-PROTECT-DEL-01"
+    # Create study uploaded by user_alice
+    file_content = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"
+    client.post(
+        "/api/v1/studies",
+        data={"study_id": study_id, "modality": "X-RAY", "patient_name": "Protected Study"},
+        files={"file": ("scan.png", io.BytesIO(file_content), "image/png")},
+        params={"user_id": "user_alice"}
+    )
+
+    # Clinician dr_lin reviews and signs off the scan
+    client.patch(
+        f"/api/v1/studies/{study_id}/review",
+        json={"action": "COMPLETED_REVIEW", "reviewer_id": "dr_lin", "review_status": "NORMAL", "notes": "Exam normal."}
+    )
+
+    # 1. Attempt to delete without user_id -> 403 Forbidden
+    res_no_user = client.delete(f"/api/v1/reviewed-studies/{study_id}")
+    assert res_no_user.status_code == 403
+    assert "clinically reviewed by dr_lin" in res_no_user.json()["detail"]
+
+    # 2. Attempt to delete by uploader (user_alice) -> 403 Forbidden (reviewer protection!)
+    res_uploader = client.delete(f"/api/v1/reviewed-studies/{study_id}?user_id=user_alice")
+    assert res_uploader.status_code == 403
+    assert "clinically reviewed by dr_lin" in res_uploader.json()["detail"]
+
+    # 3. Attempt to delete by another doctor (dr_stranger) -> 403 Forbidden
+    res_other = client.delete(f"/api/v1/studies/{study_id}?user_id=dr_stranger")
+    assert res_other.status_code == 403
+    assert "clinically reviewed by dr_lin" in res_other.json()["detail"]
+
+    # 4. Attempt to batch delete by another user -> rejected
+    res_batch_other = client.post(
+        "/api/v1/studies/batch-delete",
+        json={"study_ids": [study_id], "user_id": "dr_stranger"}
+    )
+    assert res_batch_other.status_code == 200
+    assert res_batch_other.json()["deletedCount"] == 0
+    assert len(res_batch_other.json()["errors"]) >= 1
+
+    # 5. Delete by the reviewer (dr_lin) -> 200 OK success!
+    res_reviewer = client.delete(f"/api/v1/reviewed-studies/{study_id}?user_id=dr_lin")
+    assert res_reviewer.status_code == 200
+    assert res_reviewer.json()["success"] is True
+
+    # Confirm it's gone
+    res_check = client.get(f"/api/v1/reviewed-studies/{study_id}")
+    assert res_check.status_code == 404
+
+
+def test_unreviewed_study_deletion_permissions(client):
+    """
+    Verifies that for an unreviewed study in triage queue:
+    1. Only the uploader can delete it.
+    2. Other users get 403 Forbidden.
+    """
+    study_id = "XR-UNREV-DEL-01"
+    file_content = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR"
+    client.post(
+        "/api/v1/studies",
+        data={"study_id": study_id, "modality": "X-RAY", "patient_name": "Unreviewed Study"},
+        files={"file": ("scan.png", io.BytesIO(file_content), "image/png")},
+        params={"user_id": "uploader_bob"}
+    )
+
+    # Other user attempts delete -> 403 Forbidden
+    res_other = client.delete(f"/api/v1/studies/{study_id}?user_id=attacker_carol")
+    assert res_other.status_code == 403
+    assert "Permission denied" in res_other.json()["detail"]
+
+    # Uploader deletes -> 200 OK
+    res_uploader = client.delete(f"/api/v1/studies/{study_id}?user_id=uploader_bob")
+    assert res_uploader.status_code == 200
+    assert res_uploader.json()["success"] is True
+

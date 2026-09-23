@@ -133,7 +133,12 @@ export const ReviewedStudies = () => {
     setIsDeleting(true);
     const targetId = deleteTargetStudy.studyId || deleteTargetStudy.id;
     try {
-      await studyService.deleteStudy(targetId);
+      const res = await studyService.deleteStudy(targetId);
+      if (res && res.error) {
+        showToast(`Deletion blocked: ${res.error}`);
+        setDeleteTargetStudy(null);
+        return;
+      }
       setStudies((prev) => prev.filter((s) => s.studyId !== targetId && s.id !== targetId));
       setStats((prev) => ({
         ...prev,
@@ -154,16 +159,20 @@ export const ReviewedStudies = () => {
     setIsDeleting(true);
     const ids = Array.from(selectedStudyIds);
     try {
-      await studyService.batchDeleteStudies(ids);
+      const res = await studyService.batchDeleteStudies(ids);
       const idSet = new Set(ids);
+      if (res && res.errors && res.errors.length > 0) {
+        showToast(`Some studies could not be deleted: ${res.errors.join("; ")}`);
+      } else {
+        showToast(`Successfully deleted ${res?.deletedCount ?? ids.length} studies.`);
+      }
       setStudies((prev) => prev.filter((s) => !idSet.has(s.studyId) && !idSet.has(s.id)));
       setStats((prev) => ({
         ...prev,
-        total_reviewed: Math.max(0, prev.total_reviewed - ids.length),
+        total_reviewed: Math.max(0, prev.total_reviewed - (res?.deletedCount ?? ids.length)),
       }));
       setSelectedStudyIds(new Set());
       setShowBatchDeleteConfirm(false);
-      showToast(`Successfully deleted ${ids.length} studies.`);
     } catch (err) {
       showToast(`Batch delete failed: ${err.message}`);
     } finally {
@@ -182,11 +191,13 @@ export const ReviewedStudies = () => {
   };
 
   const handleSelectAll = () => {
-    const myStudies = filteredStudies.filter((s) => matchesCurrentUser(s.uploaded_by || s.uploadedBy));
-    if (selectedStudyIds.size === myStudies.length && myStudies.length > 0) {
+    const myReviewedStudies = filteredStudies.filter((s) =>
+      matchesCurrentUser(s.reviewerId || s.reviewer_id || s.reviewedBy)
+    );
+    if (selectedStudyIds.size === myReviewedStudies.length && myReviewedStudies.length > 0) {
       setSelectedStudyIds(new Set());
     } else {
-      setSelectedStudyIds(new Set(myStudies.map((s) => s.studyId)));
+      setSelectedStudyIds(new Set(myReviewedStudies.map((s) => s.studyId)));
     }
   };
 
@@ -545,7 +556,8 @@ export const ReviewedStudies = () => {
                     ? "status-abnormal"
                     : "status-normal";
 
-                const canDelete = matchesCurrentUser(study.uploaded_by || study.uploadedBy);
+                const reviewer = study.reviewerId || study.reviewer_id || study.reviewedBy;
+                const canDelete = matchesCurrentUser(reviewer);
 
                 return (
                   <tr key={study.studyId} className={`reviewed-table-row ${isSelected ? "row-selected" : ""}`}>
@@ -561,7 +573,7 @@ export const ReviewedStudies = () => {
                         <input
                           type="checkbox"
                           disabled
-                          title="Protected: Sent by another clinician"
+                          title={`Protected: Clinically reviewed by ${reviewer || "another physician"}. Only the reviewer can delete.`}
                           style={{ opacity: 0.25, cursor: "not-allowed" }}
                         />
                       )}
@@ -690,7 +702,7 @@ export const ReviewedStudies = () => {
                         {canDelete ? (
                           <button
                             className="row-action-icon-btn delete-btn"
-                            title="Permanently Delete Study (My Upload)"
+                            title="Permanently Delete Study (My Review)"
                             onClick={() => setDeleteTargetStudy(study)}
                           >
                             <Trash2 size={14} />
@@ -698,7 +710,7 @@ export const ReviewedStudies = () => {
                         ) : (
                           <span
                             className="row-action-icon-btn disabled-btn"
-                            title="Protected: Only the clinician who uploaded this study can delete it"
+                            title={`Protected: Clinically reviewed by ${reviewer || "attending physician"}. Other users cannot delete this study.`}
                             style={{
                               opacity: 0.25,
                               cursor: "not-allowed",

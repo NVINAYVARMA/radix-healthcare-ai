@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from app.database.connection import get_db
+from app.core.logging import logger
 from app.models.study import Study
 from app.services.study_service import StudyService
 from app.schemas.study import (
@@ -32,6 +33,7 @@ async def upload_study(
     arrival_time: Optional[str] = Form(None),
     modality: str = Form("X-RAY"),
     uploaded_by: Optional[str] = Form(None),
+    user_id: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
     """
@@ -49,6 +51,7 @@ async def upload_study(
         except Exception:
             pass
 
+    actual_uploader = uploaded_by or user_id
     study = await study_service.create_and_process_study(
         db=db,
         file=file,
@@ -61,7 +64,7 @@ async def upload_study(
         clinical_notes=clinical_notes,
         arrival_time=parsed_arrival,
         modality=modality,
-        uploaded_by=uploaded_by
+        uploaded_by=actual_uploader
     )
     image_url = await study_service.get_image_url(study.image_path)
     return StudyCreateResponse(
@@ -429,7 +432,7 @@ async def delete_study(
 async def batch_delete_studies(payload: dict, db: Session = Depends(get_db)):
     """
     Batch deletes multiple studies by their IDs.
-    Restricted to studies uploaded by the requesting user.
+    Restricted to authorized users (reviewer for reviewed studies, uploader for unreviewed studies).
     """
     study_ids = payload.get("study_ids") or payload.get("studyIds") or []
     user_id = payload.get("user_id")
@@ -437,13 +440,17 @@ async def batch_delete_studies(payload: dict, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Invalid payload: 'study_ids' must be a list")
     
     deleted_count = 0
+    errors = []
     for sid in study_ids:
         if isinstance(sid, str) and sid.strip():
             try:
                 success = await study_service.delete_study(db=db, study_id=sid.strip(), requesting_user_id=user_id)
                 if success:
                     deleted_count += 1
+            except HTTPException as he:
+                errors.append(f"{sid}: {he.detail}")
+                logger.warning(f"Batch delete rejected for study {sid}: {he.detail}")
             except Exception as e:
                 logger.warning(f"Batch delete failed for study {sid}: {e}")
 
-    return {"success": True, "deletedCount": deleted_count}
+    return {"success": True, "deletedCount": deleted_count, "errors": errors}

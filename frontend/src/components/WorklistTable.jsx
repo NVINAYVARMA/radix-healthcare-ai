@@ -274,7 +274,12 @@ export const WorklistTable = ({
     setIsDeleting(true);
     const targetKey = studyToDelete.studyId || studyToDelete.id;
     try {
-      await studyService.deleteStudy(targetKey);
+      const res = await studyService.deleteStudy(targetKey);
+      if (res && res.error) {
+        alert(`Deletion denied: ${res.error}`);
+        setStudyToDelete(null);
+        return;
+      }
       if (onStudyDeleted) {
         onStudyDeleted(studyToDelete.id || studyToDelete.studyId);
       }
@@ -286,6 +291,7 @@ export const WorklistTable = ({
       setStudyToDelete(null);
     } catch (err) {
       console.error("Failed to delete study:", err);
+      alert(err.message || "Failed to delete study");
     } finally {
       setIsDeleting(false);
     }
@@ -300,7 +306,10 @@ export const WorklistTable = ({
       return s?.studyId || s?.id || id;
     });
     try {
-      await studyService.batchDeleteStudies(studyKeys);
+      const res = await studyService.batchDeleteStudies(studyKeys);
+      if (res && res.errors && res.errors.length > 0) {
+        alert(`Some studies could not be deleted:\n${res.errors.join("\n")}`);
+      }
       if (onBatchDeleted) {
         onBatchDeleted(ids);
       }
@@ -308,6 +317,7 @@ export const WorklistTable = ({
       setShowBatchDeleteModal(false);
     } catch (err) {
       console.error("Batch delete failed:", err);
+      alert(err.message || "Failed to delete studies");
     } finally {
       setIsDeleting(false);
     }
@@ -779,6 +789,15 @@ export const WorklistTable = ({
                     ? "modality-mri"
                     : "modality-xray";
 
+                const isReviewedStudy =
+                  study.status === "Reviewed" ||
+                  study.status === "REVIEWED" ||
+                  Boolean(study.reviewerId || study.reviewer_id || study.reviewedBy);
+                const studyReviewer = study.reviewerId || study.reviewer_id || study.reviewedBy;
+                const canDelete = isReviewedStudy
+                  ? matchesCurrentUser(studyReviewer)
+                  : matchesCurrentUser(study.uploaded_by || study.uploadedBy);
+
                 return (
                   <motion.tr
                     key={study.id}
@@ -796,11 +815,25 @@ export const WorklistTable = ({
                       className="td-checkbox"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => handleCheckboxToggle(e, study.id)}
-                      />
+                      {canDelete ? (
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => handleCheckboxToggle(e, study.id)}
+                          aria-label={`Select study ${study.studyId || study.id}`}
+                        />
+                      ) : (
+                        <input
+                          type="checkbox"
+                          disabled
+                          title={
+                            isReviewedStudy
+                              ? `Protected: Clinically reviewed by ${studyReviewer || "another physician"}. Only the reviewer can delete.`
+                              : "Protected: Only the uploading clinician can delete this study."
+                          }
+                          style={{ opacity: 0.25, cursor: "not-allowed" }}
+                        />
+                      )}
                     </td>
 
                     {/* Study ID */}
@@ -908,14 +941,30 @@ export const WorklistTable = ({
                           <Info size={12} />
                           <span>Why?</span>
                         </button>
-                        <button
-                          type="button"
-                          className="table-delete-btn"
-                          onClick={() => setStudyToDelete(study)}
-                          title="Delete study"
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                        {canDelete ? (
+                          <button
+                            type="button"
+                            className="table-delete-btn"
+                            onClick={() => setStudyToDelete(study)}
+                            title="Delete study"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="table-delete-btn"
+                            disabled
+                            style={{ opacity: 0.25, cursor: "not-allowed" }}
+                            title={
+                              isReviewedStudy
+                                ? `Protected: Clinically reviewed by ${studyReviewer || "attending physician"}. Other users cannot delete this study.`
+                                : "Protected: Only the uploader can delete this unreviewed study."
+                            }
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </motion.tr>

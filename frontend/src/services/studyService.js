@@ -57,20 +57,44 @@ export function matchesCurrentUser(uploadedBy) {
   const rawUid = String(u.id ?? "").toLowerCase();
   const cleanUid = rawUid.replace(/^usr_radix_/, "");
   const email = String(u.email ?? "").toLowerCase();
-  const up = String(uploadedBy).toLowerCase();
+  const username = String(u.username ?? "").toLowerCase();
+  const up = String(uploadedBy).trim().toLowerCase();
   const cleanUp = up.replace(/^usr_radix_/, "");
 
-  return (
+  if (
     up === rawUid ||
     cleanUp === cleanUid ||
     up === email ||
     cleanUp === email ||
     up === `usr_radix_${cleanUid}` ||
-    (u.username && up === String(u.username).toLowerCase()) ||
+    (username && up === username) ||
     up === "system" ||
     up === "clinic" ||
     up === "hospital"
-  );
+  ) {
+    return true;
+  }
+
+  // Name matching with titles stripped
+  const normalize = (s) =>
+    s
+      .toLowerCase()
+      .replace(/^(?:dr\.?|doctor)\s+/i, "")
+      .replace(/,?\s*(?:md|do|phd|mbbs)$/i, "")
+      .replace(/[^a-z0-9]/g, "")
+      .trim();
+
+  const userNames = [u.name, u.full_name, u.displayName, email ? email.split("@")[0] : null].filter(Boolean);
+  const normUp = normalize(up);
+  for (const un of userNames) {
+    const normUn = normalize(un);
+    if (normUp === normUn) return true;
+    if (normUp.length > 3 && normUn.length > 3 && (normUp.includes(normUn) || normUn.includes(normUp))) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -1202,13 +1226,14 @@ export const studyService = {
       } catch (err) {
         console.warn(`Backend delete failed for study ${studyId}:`, err);
         errorMsg = err.response?.data?.detail || err.message;
+        return { success: false, error: errorMsg };
       }
     }
-    // Update local cache
+    // Update local cache ONLY if deletion succeeded
     activeStudiesCache = activeStudiesCache.filter(
       (s) => s.id !== studyId && s.studyId !== studyId && s.study_id !== studyId
     );
-    return { success: success || !errorMsg, error: errorMsg };
+    return { success: true, error: null };
   },
 
   /**
@@ -1229,6 +1254,8 @@ export const studyService = {
         return response.data;
       } catch (err) {
         console.warn("Backend batch delete failed:", err);
+        const errDetail = err.response?.data?.detail || err.message;
+        return { success: false, deletedCount: 0, errors: [errDetail] };
       }
     }
     activeStudiesCache = activeStudiesCache.filter(

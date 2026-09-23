@@ -79,6 +79,7 @@ class ReviewedStudiesService:
             existing.arrival_time = study.arrival_time
             existing.reviewed_at = now_utc
             existing.image_path = study.image_path
+            existing.uploaded_by = study.uploaded_by
             db.commit()
             db.refresh(existing)
             logger.info(f"[ReviewedService] Updated reviewed_studies record for {study.study_id}")
@@ -104,6 +105,7 @@ class ReviewedStudiesService:
                 arrival_time=study.arrival_time,
                 reviewed_at=now_utc,
                 image_path=study.image_path,
+                uploaded_by=study.uploaded_by,
             )
             db.add(new_record)
             db.commit()
