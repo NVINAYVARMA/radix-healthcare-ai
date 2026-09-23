@@ -65,8 +65,8 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.25) 15%, #60a5fa 35%, #ffffff 50%, #60a5fa 65%, rgba(59, 130, 246, 0.25) 85%, transparent 100%);
-  box-shadow: 0 0 8px rgba(96, 165, 250, 0.7), 0 0 18px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 15%, #ffffff 50%, rgba(255, 255, 255, 0.3) 85%, transparent 100%);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 22px rgba(255, 255, 255, 0.6), 0 0 35px rgba(255, 255, 255, 0.3);
   animation: pacsLaserSweep 2.2s ease-in-out infinite alternate;
   z-index: 5;
 }
@@ -78,14 +78,14 @@
   left: 0;
   width: 100%;
   height: 24px;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.07) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
   pointer-events: none;
 }
 
 @keyframes pacsLaserSweep {
-  0% { top: 4%; opacity: 0.8; }
+  0% { top: 4%; opacity: 0.85; }
   50% { opacity: 1; }
-  100% { top: 94%; opacity: 0.8; }
+  100% { top: 94%; opacity: 0.85; }
 }
 
 /* Stylized Hologram Chest */
@@ -94,7 +94,7 @@
   height: 160px;
   position: absolute;
   z-index: 2;
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.35));
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.45));
 }
 
 .pacs-cardiac-glow {
@@ -102,8 +102,8 @@
 }
 
 @keyframes pacsCardiacPulse {
-  0%, 100% { fill: rgba(37, 99, 235, 0.12); stroke-width: 2; }
-  50% { fill: rgba(59, 130, 246, 0.28); stroke-width: 2.5; }
+  0%, 100% { fill: rgba(255, 255, 255, 0.1); stroke-width: 2; }
+  50% { fill: rgba(255, 255, 255, 0.25); stroke-width: 2.5; }
 }
 
 /* Target Reticles */
@@ -112,7 +112,7 @@
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  border: 1px dashed rgba(148, 163, 184, 0.22);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
   animation: pacsRotateClockwise 12s linear infinite;
   z-index: 3;
 }
@@ -122,7 +122,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 1px dotted rgba(59, 130, 246, 0.35);
+  border: 1px dotted rgba(255, 255, 255, 0.4);
   animation: pacsRotateCounter 8s linear infinite;
   z-index: 3;
 }
@@ -224,8 +224,8 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 2px solid rgba(148, 163, 184, 0.2);
-  border-top-color: #3b82f6;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
   animation: pacsRotateClockwise 0.8s linear infinite;
 }
 
@@ -259,15 +259,15 @@
   gap: 6px;
   font-size: 0.74rem;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #93c5fd;
-  background: rgba(37, 99, 235, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 6px;
   padding: 4px 10px;
 }
 
 .step-sparkle-icon {
-  color: #60a5fa;
+  color: #ffffff;
   animation: pacsBlink 1.5s infinite;
 }
 
@@ -286,8 +286,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #1d4ed8, #2563eb, #60a5fa);
+  background: linear-gradient(90deg, #64748b, #cbd5e1, #ffffff);
   background-size: 200% 100%;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
   animation: pacsProgressSlide 1.6s ease-in-out infinite;
 }
 
@@ -302,8 +303,8 @@
   align-items: center;
   gap: 10px;
   padding: 6px 14px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 8px;
 }
 
@@ -320,13 +321,13 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid rgba(56, 189, 248, 0.2);
-  border-top-color: #38bdf8;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #ffffff;
   animation: pacsRotateClockwise 0.8s linear infinite;
 }
 
 .pacs-pulse-icon-mini {
-  color: #38bdf8;
+  color: #ffffff;
   animation: pacsBlink 1.2s infinite;
 }
 

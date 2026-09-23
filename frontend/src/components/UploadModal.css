@@ -168,8 +168,8 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.25) 15%, #60a5fa 35%, #ffffff 50%, #60a5fa 65%, rgba(59, 130, 246, 0.25) 85%, transparent 100%);
-  box-shadow: 0 0 8px rgba(96, 165, 250, 0.7), 0 0 18px rgba(37, 99, 235, 0.35);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 15%, #ffffff 50%, rgba(255, 255, 255, 0.3) 85%, transparent 100%);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 20px rgba(255, 255, 255, 0.6), 0 0 35px rgba(255, 255, 255, 0.3);
   animation: uploadLaserPass 1.8s ease-in-out infinite alternate;
   z-index: 5;
 }
@@ -181,14 +181,14 @@
   left: 0;
   width: 100%;
   height: 24px;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.07) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
   pointer-events: none;
 }
 
 @keyframes uploadLaserPass {
-  0% { top: 4%; opacity: 0.8; }
+  0% { top: 4%; opacity: 0.85; }
   50% { opacity: 1; }
-  100% { top: 94%; opacity: 0.8; }
+  100% { top: 94%; opacity: 0.85; }
 }
 
 .upload-hud-scan-img {
@@ -284,13 +284,13 @@
 }
 
 .pipeline-stage-item.active .stage-icon-circle {
-  background: rgba(37, 99, 235, 0.15);
-  border-color: #3b82f6;
-  color: #60a5fa;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  color: #ffffff;
 }
 
 .icon-active {
-  color: #60a5fa;
+  color: #ffffff;
 }
 
 .stage-text-group {
@@ -306,7 +306,7 @@
 }
 
 .pipeline-stage-item.active .stage-title {
-  color: #60a5fa;
+  color: #ffffff;
 }
 
 .stage-desc {
@@ -333,15 +333,15 @@
   gap: 6px;
   font-size: 0.74rem;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #93c5fd;
-  background: rgba(37, 99, 235, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 6px;
   padding: 4px 10px;
 }
 
 .sparkle-cyan {
-  color: #60a5fa;
+  color: #ffffff;
   animation: pacsBlink 1.5s infinite;
 }
 
@@ -349,7 +349,7 @@
   font-size: 0.84rem;
   font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #60a5fa;
+  color: #ffffff;
 }
 
 .upload-progress-track {
@@ -362,10 +362,10 @@
 
 .upload-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+  background: linear-gradient(90deg, #94a3b8 0%, #e2e8f0 50%, #ffffff 100%);
   border-radius: 9999px;
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
 }
 
 /* Result Card */
