@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Optional, List, Tuple
 from fastapi import UploadFile, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from PIL import Image, ImageStat
 from app.models.study import Study, StudyStatus, PriorityLevel
 from app.models.review import ReviewLog

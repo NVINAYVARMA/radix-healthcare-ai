@@ -272,7 +272,11 @@ export const RadiologistDashboard = () => {
                 <div className="metric-kpi-value">{avgTAT} <small>mins</small></div>
                 <div className="metric-trend text-positive">
                   <TrendingUp size={13} />
-                  <span>3.2x faster vs manual triage</span>
+                  <span>
+                    {metrics.turnaroundImprovementPercent > 0
+                      ? `${metrics.turnaroundImprovementPercent}% faster vs FIFO queue`
+                      : "Real-time sign-off benchmark"}
+                  </span>
                 </div>
               </Card>
             </motion.div>

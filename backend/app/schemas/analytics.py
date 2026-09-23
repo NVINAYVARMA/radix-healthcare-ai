@@ -43,6 +43,11 @@ class QueueComparisonResponse(BaseModel):
     max_rank_improvement: int
     estimated_time_saved_minutes_critical: float
     items: List[QueueComparisonItem]
+    comparisonTable: Optional[List[Dict]] = None
+    fifoSimulatedQueue: Optional[List[Dict]] = None
+    radixSimulatedQueue: Optional[List[Dict]] = None
+    fifoOrderQueue: Optional[List[Dict]] = None
+    radixOrderQueue: Optional[List[Dict]] = None
 
 
 class DenseNetClassMetric(BaseModel):

@@ -252,23 +252,12 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
       return;
     }
 
+    const uploadStartTime = performance.now();
     setUploading(true);
     setFileError("");
-    setUploadProgress(18);
+    setUploadProgress(5);
     setActiveStage(1);
-    setUploadStep("Streaming DICOM pixel matrix to PACS gateway...");
-
-    const t1 = setTimeout(() => {
-      setUploadProgress(48);
-      setActiveStage(2);
-      setUploadStep("Executing DenseNet-121 Multi-Label Pathology Extraction...");
-    }, 450);
-
-    const t2 = setTimeout(() => {
-      setUploadProgress(82);
-      setActiveStage(3);
-      setUploadStep("Evaluating 6-tier urgency tie-breakers & backlog priority...");
-    }, 1100);
+    setUploadStep("Connecting to PACS gateway and preparing DICOM transfer...");
 
     try {
       const formData = new FormData();
@@ -305,27 +294,46 @@ export const UploadModal = ({ isOpen, onClose, onStudyUploaded, nextId = 41 }) =
         formData.append("uploaded_by", activeUserId);
       } catch {}
 
-      const res = await studyService.uploadStudy(formData);
-      clearTimeout(t1);
-      clearTimeout(t2);
+      // REAL-TIME Progress handler directly wired to Axios XMLHttpRequest network stream
+      const onProgress = (progressEvent) => {
+        if (!progressEvent.total) {
+          setUploadProgress(40);
+          return;
+        }
+        const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        const loadedKB = (progressEvent.loaded / 1024).toFixed(0);
+        const totalKB = (progressEvent.total / 1024).toFixed(0);
+
+        if (pct < 100) {
+          setActiveStage(1);
+          setUploadProgress(Math.min(85, Math.max(10, Math.round(pct * 0.85))));
+          setUploadStep(`Transmitting DICOM payload: ${loadedKB} KB / ${totalKB} KB (${pct}%)`);
+        } else {
+          // Network upload finished, backend neural network is now executing
+          setActiveStage(2);
+          setUploadProgress(92);
+          setUploadStep(`Payload received (${totalKB} KB). Running real-time DenseNet-121 inference & tie-breaker...`);
+        }
+      };
+
+      const res = await studyService.uploadStudy(formData, onProgress);
+      const totalElapsedMs = Math.round(performance.now() - uploadStartTime);
 
       setUploadProgress(100);
       setActiveStage(4);
-      setUploadStep("Triage inference complete! Ingested into emergency queue.");
+      setUploadStep(`Inference & queuing verified in ${totalElapsedMs}ms`);
 
       if (res?.study) {
         setAnalyzedStudy(res.study);
         onStudyUploaded(res.study);
       }
 
-      // Smooth display pause so radiologist observes computed AI urgency classification
+      // Brief hold so user sees the real output before closing
       setTimeout(() => {
         setUploading(false);
         onClose();
       }, 1000);
     } catch (err) {
-      clearTimeout(t1);
-      clearTimeout(t2);
       console.error("Upload error:", err);
       const errMsg =
         err.response?.data?.detail ||

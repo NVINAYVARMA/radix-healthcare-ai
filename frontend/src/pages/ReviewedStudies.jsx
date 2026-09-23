@@ -35,9 +35,20 @@ export const ReviewedStudies = () => {
     critical_count: 0,
     abnormal_count: 0,
     normal_count: 0,
-    avg_turnaround_time_mins: 18.5,
+    avg_turnaround_time_mins: 0.0,
     reviewed_today_count: 0,
   });
+
+  const formatTAT = (mins) => {
+    if (mins == null) return "Recorded";
+    if (mins < 1) return `${Math.round(mins * 60)}s turnaround`;
+    if (mins >= 60) {
+      const hrs = Math.floor(mins / 60);
+      const rem = Math.round(mins % 60);
+      return `${hrs}h ${rem}m turnaround`;
+    }
+    return `${mins}m turnaround`;
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
@@ -201,7 +212,7 @@ export const ReviewedStudies = () => {
       `"${s.reviewStatus}"`,
       `"${s.reviewerId}"`,
       `"${s.reviewedAt}"`,
-      s.turnaroundTimeMins || 15,
+      s.turnaroundTimeMins != null ? s.turnaroundTimeMins : "N/A",
       `"${(s.reviewNotes || "").replace(/"/g, '""')}"`,
     ]);
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
@@ -641,7 +652,7 @@ export const ReviewedStudies = () => {
                       <div className="time-primary-text">{study.reviewedAt}</div>
                       <div className="turnaround-subtext">
                         <Clock size={11} />
-                        <span>{study.turnaroundTimeMins || 14}m turnaround</span>
+                        <span>{formatTAT(study.turnaroundTimeMins)}</span>
                       </div>
                     </td>
 
@@ -764,7 +775,11 @@ export const ReviewedStudies = () => {
                   </div>
                   <div className="meta-box">
                     <span className="meta-lbl">Turnaround Time</span>
-                    <strong className="meta-val">{selectedReport.turnaroundTimeMins} minutes</strong>
+                    <strong className="meta-val">
+                      {selectedReport.turnaroundTimeMins != null
+                        ? `${selectedReport.turnaroundTimeMins} min`
+                        : "Recorded"}
+                    </strong>
                   </div>
                 </div>
 

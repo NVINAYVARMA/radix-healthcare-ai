@@ -415,8 +415,8 @@ export function normalizeAiProbabilities(item) {
   };
 }
 
-// Local state cache in memory and localStorage for instant zero-latency render
-let activeStudiesCache = Array.isArray(mockStudies) ? [...mockStudies] : [];
+// Local state cache in memory and localStorage for real-time persisted state
+let activeStudiesCache = [];
 try {
   if (typeof localStorage !== "undefined") {
     const saved = localStorage.getItem("radix_cached_studies");
@@ -434,9 +434,6 @@ export const studyService = {
    * Return synchronous cached studies for instant render scoped to current user
    */
   getCachedStudies() {
-    if (!activeStudiesCache || activeStudiesCache.length === 0) {
-      activeStudiesCache = Array.isArray(mockStudies) ? [...mockStudies] : [];
-    }
     return activeStudiesCache;
   },
 
@@ -444,7 +441,7 @@ export const studyService = {
    * Clear synchronous cached studies on logout or account switch
    */
   clearCachedStudies() {
-    activeStudiesCache = Array.isArray(mockStudies) ? [...mockStudies] : [];
+    activeStudiesCache = [];
     try {
       if (typeof localStorage !== "undefined") {
         localStorage.removeItem("radix_cached_studies");
@@ -456,14 +453,22 @@ export const studyService = {
    * Upload study scan image and metadata to backend
    * Connects to POST /api/v1/studies
    */
-  async uploadStudy(formData) {
+  async uploadStudy(formData, onProgress) {
     if (apiClient) {
       try {
         let response;
+        const uploadConfig = {
+          timeout: 90000,
+          onUploadProgress: (progressEvent) => {
+            if (typeof onProgress === "function") {
+              onProgress(progressEvent);
+            }
+          },
+        };
         if (formData instanceof FormData) {
           response = await apiClient.post("/studies", formData, {
+            ...uploadConfig,
             headers: { "Content-Type": "multipart/form-data" },
-            timeout: 60000,
           });
         } else if (formData?.file instanceof File) {
           const fd = new FormData();
@@ -477,13 +482,11 @@ export const studyService = {
             fd.append("arrival_time", formData.arrival_time || formData.arrivalTime);
           }
           response = await apiClient.post("/studies", fd, {
+            ...uploadConfig,
             headers: { "Content-Type": "multipart/form-data" },
-            timeout: 60000,
           });
         } else {
-          response = await apiClient.post("/studies/json", formData, {
-            timeout: 60000,
-          });
+          response = await apiClient.post("/studies/json", formData, uploadConfig);
         }
         const data = response.data;
         const assignedStudyId = data.study_id || data.studyId || (data.study && data.study.studyId);
@@ -1113,7 +1116,7 @@ export const studyService = {
               reviewStatus: item.review_status || "NORMAL",
               reviewerId: item.reviewer_id || "Dr. Sarah Lin, MD",
               reviewNotes: item.review_notes || "Clinical sign-off recorded.",
-              turnaroundTimeMins: item.turnaround_time_mins ?? 15,
+              turnaroundTimeMins: item.turnaround_time_mins != null ? Number(item.turnaround_time_mins.toFixed(1)) : null,
               arrivalTime: formatArrivalTime(item.arrival_time),
               rawArrivalTime: item.arrival_time,
               reviewedAt: formatArrivalTime(item.reviewed_at),
@@ -1144,7 +1147,7 @@ export const studyService = {
               critical_count: items.filter((i) => i.priorityLevel === "HIGH" || i.reviewStatus === "CRITICAL").length,
               abnormal_count: items.filter((i) => i.reviewStatus === "ABNORMAL").length,
               normal_count: items.filter((i) => i.reviewStatus === "NORMAL").length,
-              avg_turnaround_time_mins: 18.5,
+              avg_turnaround_time_mins: 0.0,
               reviewed_today_count: items.length,
             },
           };
@@ -1154,17 +1157,6 @@ export const studyService = {
       }
     }
     let reviewed = activeStudiesCache.filter((s) => s.status === "REVIEWED" || s.status === "Reviewed");
-    if (reviewed.length === 0 && Array.isArray(mockStudies)) {
-      reviewed = mockStudies.slice(0, 3).map((s) => ({
-        ...s,
-        status: "Reviewed",
-        reviewStatus: s.priority === "High" ? "CRITICAL" : "NORMAL",
-        reviewedBy: "Dr. Alex Vance, MD",
-        reviewedAt: "10:15 AM",
-        reviewNotes: "Diagnostic review finalized. Findings communicated to ED acute team.",
-        turnaroundTimeMins: 14.2,
-      }));
-    }
     return {
       items: reviewed,
       total: reviewed.length,
@@ -1173,7 +1165,7 @@ export const studyService = {
         critical_count: reviewed.filter((i) => i.priority === "High" || i.priorityLevel === "HIGH").length,
         abnormal_count: reviewed.filter((i) => i.priority === "Medium").length,
         normal_count: reviewed.filter((i) => i.priority === "Low" || i.priority === "Standard").length,
-        avg_turnaround_time_mins: 18.5,
+        avg_turnaround_time_mins: 0.0,
         reviewed_today_count: reviewed.length,
       },
     };

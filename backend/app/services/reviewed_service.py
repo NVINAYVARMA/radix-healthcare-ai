@@ -32,10 +32,10 @@ class ReviewedStudiesService:
 
         tat_mins = None
         try:
-            diff_secs = (now_utc - arrival).total_seconds()
-            tat_mins = max(1.0, round(diff_secs / 60.0, 1))
+            diff_secs = max(0.0, (now_utc - arrival).total_seconds())
+            tat_mins = round(diff_secs / 60.0, 1)
         except Exception:
-            tat_mins = 15.0
+            tat_mins = None
 
         # Extract primary AI finding
         ai_findings = study.clinical_notes
@@ -192,7 +192,7 @@ class ReviewedStudiesService:
         normal_count = sum(1 for r in all_records if r.review_status == "NORMAL")
         
         tat_list = [r.turnaround_time_mins for r in all_records if r.turnaround_time_mins is not None]
-        avg_tat = round(sum(tat_list) / len(tat_list), 1) if tat_list else 18.5
+        avg_tat = round(sum(tat_list) / len(tat_list), 1) if tat_list else 0.0
 
         now_utc = datetime.now(timezone.utc)
         today_start = now_utc.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -210,7 +210,7 @@ class ReviewedStudiesService:
             abnormal_count=abnormal_count,
             normal_count=normal_count,
             avg_turnaround_time_mins=avg_tat,
-            reviewed_today_count=today_count or min(total_all, 12),
+            reviewed_today_count=today_count,
         )
 
         return items, total_filtered, stats
