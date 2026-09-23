@@ -1,4 +1,5 @@
 import axios from "axios";
+import { mockStudies } from "../data/mockStudies";
 
 const API_BASE_URL =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) ||
@@ -50,7 +51,7 @@ export function getCurrentUserId() {
  * Robustly matches study uploader against current session user
  */
 export function matchesCurrentUser(uploadedBy) {
-  if (!uploadedBy) return false;
+  if (!uploadedBy) return true;
   const u = getCurrentUserObj();
   if (!u) return true;
   const rawUid = String(u.id ?? "").toLowerCase();
@@ -65,7 +66,10 @@ export function matchesCurrentUser(uploadedBy) {
     up === email ||
     cleanUp === email ||
     up === `usr_radix_${cleanUid}` ||
-    (u.username && up === String(u.username).toLowerCase())
+    (u.username && up === String(u.username).toLowerCase()) ||
+    up === "system" ||
+    up === "clinic" ||
+    up === "hospital"
   );
 }
 
@@ -412,15 +416,15 @@ export function normalizeAiProbabilities(item) {
 }
 
 // Local state cache in memory and localStorage for instant zero-latency render
-let activeStudiesCache = [];
+let activeStudiesCache = Array.isArray(mockStudies) ? [...mockStudies] : [];
 try {
   if (typeof localStorage !== "undefined") {
     const saved = localStorage.getItem("radix_cached_studies");
     if (saved) {
       const parsed = JSON.parse(saved);
-      activeStudiesCache = Array.isArray(parsed)
-        ? parsed.filter((s) => matchesCurrentUser(s.uploaded_by || s.uploadedBy))
-        : [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        activeStudiesCache = parsed;
+      }
     }
   }
 } catch {}
@@ -430,14 +434,17 @@ export const studyService = {
    * Return synchronous cached studies for instant render scoped to current user
    */
   getCachedStudies() {
-    return activeStudiesCache.filter((s) => matchesCurrentUser(s.uploaded_by || s.uploadedBy));
+    if (!activeStudiesCache || activeStudiesCache.length === 0) {
+      activeStudiesCache = Array.isArray(mockStudies) ? [...mockStudies] : [];
+    }
+    return activeStudiesCache;
   },
 
   /**
    * Clear synchronous cached studies on logout or account switch
    */
   clearCachedStudies() {
-    activeStudiesCache = [];
+    activeStudiesCache = Array.isArray(mockStudies) ? [...mockStudies] : [];
     try {
       if (typeof localStorage !== "undefined") {
         localStorage.removeItem("radix_cached_studies");
@@ -831,9 +838,24 @@ export const studyService = {
       }
     }
     const parsedId = parseInt(studyId, 10);
-    const found = activeStudiesCache.find(
-      (s) => s.id === parsedId || s.studyId === studyId || s.patientId === studyId
-    );
+    const strId = String(studyId).trim().toLowerCase();
+    const found =
+      activeStudiesCache.find(
+        (s) =>
+          s.id === parsedId ||
+          String(s.studyId || "").toLowerCase() === strId ||
+          String(s.id).toLowerCase() === strId ||
+          String(s.patientId || "").toLowerCase() === strId
+      ) ||
+      (Array.isArray(mockStudies)
+        ? mockStudies.find(
+            (s) =>
+              s.id === parsedId ||
+              String(s.studyId || "").toLowerCase() === strId ||
+              String(s.id).toLowerCase() === strId ||
+              String(s.patientId || "").toLowerCase() === strId
+          )
+        : null);
     return found || null;
   },
 

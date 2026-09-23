@@ -73,7 +73,8 @@ export const WorklistTable = ({
   const currentUserId = getCurrentUserId();
 
   const scopedStudies = useMemo(() => {
-    return studies.filter((s) => {
+    const list = Array.isArray(studies) ? studies : [];
+    return list.filter((s) => {
       const uploader = s.uploaded_by || s.uploadedBy;
       if (uploader) {
         return matchesCurrentUser(uploader);

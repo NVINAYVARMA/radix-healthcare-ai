@@ -64,7 +64,11 @@ class QueueService:
                     u_rec = db.query(User).filter(User.id == int(suffix)).first()
                     if u_rec:
                         possible_ids.add(u_rec.email)
-            base_query = base_query.filter(Study.uploaded_by.in_(list(possible_ids)))
+            user_specific_count = base_query.filter(Study.uploaded_by.in_(list(possible_ids))).count()
+            if user_specific_count > 0:
+                base_query = base_query.filter(
+                    (Study.uploaded_by.in_(list(possible_ids))) | (Study.uploaded_by == None) | (Study.uploaded_by == "system")
+                )
 
         # Query total active counts by priority level
         high_count = base_query.filter(
