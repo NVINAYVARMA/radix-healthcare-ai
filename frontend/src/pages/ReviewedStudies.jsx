@@ -113,7 +113,11 @@ export const ReviewedStudies = () => {
   // Handle re-opening a study back to the queue
   const handleRevertStudy = async (studyId) => {
     try {
-      await studyService.revertReviewedStudy(studyId);
+      const res = await studyService.revertReviewedStudy(studyId);
+      if (res && res.success === false) {
+        showToast(res.error || "Permission denied: Only the reviewing physician can reopen this study.");
+        return;
+      }
       setStudies((prev) => prev.filter((s) => s.studyId !== studyId));
       setStats((prev) => ({
         ...prev,
@@ -558,7 +562,9 @@ export const ReviewedStudies = () => {
 
                 const rawRev = study.reviewerId || study.reviewer_id || study.reviewedBy;
                 const reviewer = formatReviewerName(rawRev, study.uploaded_by || study.uploadedBy);
-                const canDelete = matchesCurrentUser(rawRev) || matchesCurrentUser(reviewer) || matchesCurrentUser(study.uploaded_by || study.uploadedBy);
+                const isSameUser = matchesCurrentUser(rawRev) || matchesCurrentUser(reviewer) || matchesCurrentUser(study.uploaded_by || study.uploadedBy);
+                const canDelete = isSameUser;
+                const canReopen = isSameUser;
 
                 return (
                   <tr key={study.studyId} className={`reviewed-table-row ${isSelected ? "row-selected" : ""}`}>
@@ -693,13 +699,30 @@ export const ReviewedStudies = () => {
                         >
                           <FileText size={15} />
                         </button>
-                        <button
-                          className="row-action-icon-btn revert-btn"
-                          title="Reopen / Return to Active Worklist"
-                          onClick={() => handleRevertStudy(study.studyId)}
-                        >
-                          <RotateCcw size={14} />
-                        </button>
+                        {canReopen ? (
+                          <button
+                            className="row-action-icon-btn revert-btn"
+                            title="Reopen / Return to Active Worklist (My Review)"
+                            onClick={() => handleRevertStudy(study.studyId)}
+                          >
+                            <RotateCcw size={14} />
+                          </button>
+                        ) : (
+                          <span
+                            className="row-action-icon-btn disabled-btn"
+                            title={`Protected: Clinically reviewed by ${reviewer || "attending physician"}. Only the reviewing physician can reopen this study.`}
+                            style={{
+                              opacity: 0.25,
+                              cursor: "not-allowed",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              padding: "4px",
+                            }}
+                          >
+                            <RotateCcw size={14} />
+                          </span>
+                        )}
                         {canDelete ? (
                           <button
                             className="row-action-icon-btn delete-btn"
@@ -839,13 +862,32 @@ export const ReviewedStudies = () => {
               </div>
 
               <div className="report-modal-footer">
-                <button
-                  className="reviewed-action-btn secondary"
-                  onClick={() => handleRevertStudy(selectedReport.studyId)}
-                >
-                  <RotateCcw size={14} />
-                  <span>Reopen to Queue</span>
-                </button>
+                {(() => {
+                  const repRawRev = selectedReport.reviewerId || selectedReport.reviewer_id || selectedReport.reviewedBy;
+                  const repReviewer = formatReviewerName(repRawRev, selectedReport.uploaded_by || selectedReport.uploadedBy);
+                  const canReopenReport = matchesCurrentUser(repRawRev) || matchesCurrentUser(repReviewer) || matchesCurrentUser(selectedReport.uploaded_by || selectedReport.uploadedBy);
+
+                  return canReopenReport ? (
+                    <button
+                      className="reviewed-action-btn secondary"
+                      onClick={() => handleRevertStudy(selectedReport.studyId)}
+                      title="Reopen examination and move back to active triage queue"
+                    >
+                      <RotateCcw size={14} />
+                      <span>Reopen to Queue</span>
+                    </button>
+                  ) : (
+                    <button
+                      className="reviewed-action-btn secondary disabled-action-btn"
+                      disabled
+                      title={`Protected: Clinically reviewed by ${repReviewer}. Only the reviewing physician can reopen this study.`}
+                      style={{ opacity: 0.35, cursor: "not-allowed" }}
+                    >
+                      <RotateCcw size={14} />
+                      <span>Reopen to Queue</span>
+                    </button>
+                  );
+                })()}
                 <div className="footer-right-buttons">
                   <button className="reviewed-action-btn secondary" onClick={() => setSelectedReport(null)}>
                     Close

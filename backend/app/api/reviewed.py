@@ -59,13 +59,15 @@ async def get_reviewed_study(
 @router.post("/{study_id}/revert")
 async def revert_study_to_queue(
     study_id: str,
+    user_id: Optional[str] = Query(None, description="Requesting clinician ID"),
     db: Session = Depends(get_db)
 ):
     """
     Reverts a reviewed study back to the active triage queue (PENDING_REVIEW),
     removing it from the reviewed_studies archive.
+    Enforces strict clinical ownership: only the reviewing clinician can reopen this study.
     """
-    success = reviewed_service.revert_reviewed_study(db, study_id)
+    success = reviewed_service.revert_reviewed_study(db, study_id, requesting_user_id=user_id)
     return {
         "success": success,
         "message": f"Study '{study_id}' successfully reopened and returned to active worklist queue."

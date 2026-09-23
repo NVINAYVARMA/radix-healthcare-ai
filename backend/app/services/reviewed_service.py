@@ -386,28 +386,87 @@ class ReviewedStudiesService:
             logger.warning(f"[ReviewedService] Auto-sync encountered notice: {e}")
 
     @staticmethod
-    def revert_reviewed_study(db: Session, study_id: str) -> bool:
+    def revert_reviewed_study(db: Session, study_id: str, requesting_user_id: Optional[str] = None) -> bool:
         """
         Reverts a reviewed study back to active triage queue (PENDING_REVIEW),
         and removes it from reviewed_studies archive.
+        Enforces strict clinical ownership:
+        - ONLY the clinician who reviewed/signed off the study (or uploader) is permitted to reopen it.
+          Other users are strictly rejected with 403 Forbidden.
         """
+        from app.services.study_service import StudyService
+        from fastapi import HTTPException
+
         record = db.scalars(
             select(ReviewedStudy).where(ReviewedStudy.study_id == study_id)
         ).first()
-        rev_name = record.reviewer_id if record else "Attending Clinician"
-        if record:
-            db.delete(record)
 
         study = db.scalars(
             select(Study).where(Study.study_id == study_id)
         ).first()
+
+        if not record and not study:
+            raise HTTPException(status_code=404, detail=f"Study '{study_id}' not found.")
+
+        # Identify the reviewing clinician
+        reviewer = None
+        if record and record.reviewer_id:
+            reviewer = record.reviewer_id
+
+        if not reviewer and study:
+            last_review = db.query(ReviewLog).filter(
+                ReviewLog.study_id == study_id,
+                ReviewLog.action.in_(["COMPLETED_REVIEW", "REVIEWED", "SIGNED_OFF"])
+            ).order_by(ReviewLog.id.desc()).first()
+            if last_review:
+                reviewer = last_review.reviewer_id
+
+        if not reviewer and study:
+            reviewer = getattr(study, "assigned_radiologist", None) or getattr(study, "uploaded_by", None)
+
+        if not reviewer:
+            reviewer = "Attending Clinician"
+
+        # Permission check: ONLY the same user who reviewed it (or signed it off) can reopen
+        if not requesting_user_id:
+            logger.warning(f"[ReviewedService] Unauthenticated reopen attempt on reviewed study {study_id}")
+            raise HTTPException(
+                status_code=403,
+                detail=f"Permission denied: This scan was clinically reviewed by {reviewer}. Only the reviewing physician can reopen this study."
+            )
+
+        if requesting_user_id.lower() != "all":
+            study_svc = StudyService()
+            req_aliases = study_svc._resolve_user_identifiers(db, requesting_user_id)
+            reviewer_aliases = study_svc._resolve_user_identifiers(db, reviewer)
+
+            # Also check uploader if relevant
+            uploader = getattr(study, "uploaded_by", None) or (record.uploaded_by if record else None)
+            allowed_aliases = set(reviewer_aliases)
+            if uploader:
+                uploader_aliases = study_svc._resolve_user_identifiers(db, uploader)
+                allowed_aliases = allowed_aliases.union(uploader_aliases)
+
+            if not req_aliases.intersection(allowed_aliases):
+                logger.warning(
+                    f"[ReviewedService] Unauthorized reopen attempt on study {study_id}: "
+                    f"reviewer='{reviewer}', requester='{requesting_user_id}'"
+                )
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Permission denied: This scan was clinically reviewed by {reviewer}. Only the reviewing physician can reopen this study."
+                )
+
+        if record:
+            db.delete(record)
+
         if study:
             study.status = StudyStatus.PENDING_REVIEW.value
             rev_log = ReviewLog(
                 study_id=study.study_id,
                 action="REVERTED_TO_QUEUE",
                 review_status="PENDING",
-                reviewer_id=rev_name,
+                reviewer_id=reviewer,
                 notes="Reopened from reviewed archive back to active worklist",
             )
             db.add(rev_log)

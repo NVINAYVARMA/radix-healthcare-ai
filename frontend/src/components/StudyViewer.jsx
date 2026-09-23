@@ -64,9 +64,13 @@ export const StudyViewer = ({
     Boolean(study?.reviewedAt || study?.reviewed_at || study?.reviewerId || study?.reviewer_id);
 
   const reviewingDoctor = study?.reviewerId || study?.reviewer_id || study?.reviewedBy;
-  const canDeleteStudy = isClinicallyReviewed
-    ? matchesCurrentUser(reviewingDoctor)
+  const isSameUser = isClinicallyReviewed
+    ? (matchesCurrentUser(reviewingDoctor) || matchesCurrentUser(study?.uploaded_by || study?.uploadedBy))
     : matchesCurrentUser(study?.uploaded_by || study?.uploadedBy);
+  const canDeleteStudy = isSameUser;
+  const canReopenStudy = isClinicallyReviewed
+    ? (matchesCurrentUser(reviewingDoctor) || matchesCurrentUser(study?.uploaded_by || study?.uploadedBy))
+    : true;
 
   const handleConfirmDelete = async () => {
     if (!onDeleteStudy) return;
@@ -806,14 +810,26 @@ export const StudyViewer = ({
 
           {/* Reopen / Return to Active Queue */}
           {isReviewed && onRevertStudy && (
-            <button
-              className="pacs-action-btn revert-btn"
-              onClick={() => onRevertStudy(study.studyId || study.id)}
-              title="Reopen examination and move back to active triage queue"
-            >
-              <RotateCcw size={13} />
-              <span>Reopen to Worklist</span>
-            </button>
+            canReopenStudy ? (
+              <button
+                className="pacs-action-btn revert-btn"
+                onClick={() => onRevertStudy(study.studyId || study.id)}
+                title="Reopen examination and move back to active triage queue (My Review)"
+              >
+                <RotateCcw size={13} />
+                <span>Reopen to Worklist</span>
+              </button>
+            ) : (
+              <button
+                className="pacs-action-btn revert-btn disabled-btn"
+                disabled
+                title={`Protected: Clinically reviewed by ${reviewingDoctor || "another physician"}. Only the reviewing physician can reopen this study.`}
+                style={{ opacity: 0.35, cursor: "not-allowed" }}
+              >
+                <RotateCcw size={13} />
+                <span>Reopen to Worklist</span>
+              </button>
+            )
           )}
 
           {/* Next Study */}

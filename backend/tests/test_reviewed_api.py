@@ -59,19 +59,31 @@ def test_reviewed_studies_storage_and_query(client):
 
 def test_revert_reviewed_study(client):
     """
-    Verifies that a reviewed study can be reopened back to active worklist.
+    Verifies that only the reviewing physician can reopen a study back to the active worklist:
+    1. Unauthorized attempts without user_id or by other clinicians fail with 403 Forbidden.
+    2. Reopen by the same reviewing physician succeeds with 200 OK.
     """
     study_id = "XR-REVERT-01"
     _create_sample_study(client, study_id, "Revert Patient")
 
-    # Review it
+    # Review it by dr_lin
     client.patch(
         f"/api/v1/studies/{study_id}/review",
         json={"action": "COMPLETED_REVIEW", "reviewer_id": "dr_lin", "review_status": "NORMAL"}
     )
 
-    # Revert it
-    revert_res = client.post(f"/api/v1/reviewed-studies/{study_id}/revert")
+    # 1. Attempt to revert without user_id -> 403 Forbidden
+    revert_no_user = client.post(f"/api/v1/reviewed-studies/{study_id}/revert")
+    assert revert_no_user.status_code == 403
+    assert "Only the reviewing physician can reopen" in revert_no_user.json()["detail"]
+
+    # 2. Attempt to revert by another clinician (dr_stranger) -> 403 Forbidden
+    revert_other = client.post(f"/api/v1/reviewed-studies/{study_id}/revert?user_id=dr_stranger")
+    assert revert_other.status_code == 403
+    assert "Only the reviewing physician can reopen" in revert_other.json()["detail"]
+
+    # 3. Revert by the same reviewing clinician (dr_lin) -> 200 OK
+    revert_res = client.post(f"/api/v1/reviewed-studies/{study_id}/revert?user_id=dr_lin")
     assert revert_res.status_code == 200
     assert revert_res.json()["success"] is True
 

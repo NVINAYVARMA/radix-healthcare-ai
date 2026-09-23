@@ -123,10 +123,15 @@ export const StudyReviewPage = () => {
 
   const handleRevertStudy = async (targetId) => {
     try {
-      await studyService.revertReviewedStudy(targetId);
+      const res = await studyService.revertReviewedStudy(targetId);
+      if (res && res.success === false) {
+        alert(res.error || "Permission denied: Only the reviewing physician can reopen this study.");
+        return;
+      }
       navigate("/worklist");
     } catch (err) {
       console.error("Failed to revert study:", err);
+      alert(err.response?.data?.detail || err.message || "Failed to revert study.");
     }
   };
 

@@ -1254,15 +1254,23 @@ export const studyService = {
   },
 
   /**
-   * Reopen a reviewed study and return it to the active worklist queue
+   * Reopen a reviewed study and return it to the active worklist queue.
+   * Only permitted for the same physician who reviewed/signed off the study.
    */
   async revertReviewedStudy(studyId) {
+    const activeUserId = getCurrentUserId();
     if (apiClient) {
       try {
-        const response = await apiClient.post(`/reviewed-studies/${studyId}/revert`);
-        return response.data;
+        const response = await apiClient.post(
+          `/reviewed-studies/${studyId}/revert`,
+          null,
+          { params: activeUserId ? { user_id: activeUserId } : {} }
+        );
+        return { success: true, message: response.data?.message || `Reverted study ${studyId}` };
       } catch (err) {
         console.warn("Backend revert failed:", err);
+        const errDetail = err.response?.data?.detail || err.message || "Failed to reopen study.";
+        return { success: false, error: errDetail };
       }
     }
     return { success: true, message: `Reverted study ${studyId}` };
