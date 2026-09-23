@@ -31,10 +31,11 @@
 }
 
 .modal-dialog-processing {
-  background: #090d16;
-  border-color: rgba(56, 189, 248, 0.3);
-  box-shadow: 0 25px 60px -15px rgba(2, 6, 23, 0.8),
-              0 0 40px rgba(2, 132, 199, 0.18);
+  background: #0b1329;
+  border-color: #1e293b;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.6),
+              0 0 0 1px rgba(148, 163, 184, 0.12),
+              0 8px 30px rgba(37, 99, 235, 0.1);
 }
 
 /* Header */
@@ -50,7 +51,7 @@
 
 .modal-dialog-processing .modal-header {
   background: #0f172a;
-  border-bottom-color: rgba(56, 189, 248, 0.2);
+  border-bottom-color: #1e293b;
 }
 
 .modal-title-group {
@@ -71,8 +72,8 @@
 }
 
 .modal-dialog-processing .modal-header-icon-wrapper {
-  background: rgba(2, 132, 199, 0.15);
-  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(59, 130, 246, 0.25);
 }
 
 .modal-icon-blue {
@@ -80,7 +81,7 @@
 }
 
 .modal-dialog-processing .modal-icon-blue {
-  color: #38bdf8;
+  color: #60a5fa;
 }
 
 .modal-title-group h3 {
@@ -131,31 +132,32 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #090d16;
+  background: #0b1329;
   color: #e2e8f0;
 }
 
 /* Holographic Medical Scanner Viewport */
 .upload-scan-hud-container {
   width: 100%;
-  height: 185px;
-  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  height: 190px;
+  background: radial-gradient(circle at center, #131c33 0%, #0a101d 100%);
+  border: 1px solid #1e293b;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.5);
 }
 
 .upload-hud-grid {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(56, 189, 248, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
-  background-size: 18px 18px;
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
   pointer-events: none;
   z-index: 2;
 }
@@ -165,42 +167,54 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #38bdf8, #0284c7, #38bdf8, transparent);
-  box-shadow: 0 0 14px #38bdf8, 0 0 24px rgba(56, 189, 248, 0.6);
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.25) 15%, #60a5fa 35%, #ffffff 50%, #60a5fa 65%, rgba(59, 130, 246, 0.25) 85%, transparent 100%);
+  box-shadow: 0 0 8px rgba(96, 165, 250, 0.7), 0 0 18px rgba(37, 99, 235, 0.35);
   animation: uploadLaserPass 1.8s ease-in-out infinite alternate;
   z-index: 5;
 }
 
+.upload-laser-sweep::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 100%;
+  height: 24px;
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.07) 0%, transparent 100%);
+  pointer-events: none;
+}
+
 @keyframes uploadLaserPass {
-  0% { top: 4%; opacity: 0.7; }
+  0% { top: 4%; opacity: 0.8; }
   50% { opacity: 1; }
-  100% { top: 94%; opacity: 0.7; }
+  100% { top: 94%; opacity: 0.8; }
 }
 
 .upload-hud-scan-img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  opacity: 0.85;
-  filter: contrast(1.15) brightness(0.95);
+  opacity: 0.88;
+  filter: contrast(1.1) brightness(0.95);
   z-index: 1;
 }
 
 .upload-hud-tag {
   position: absolute;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #38bdf8;
-  background: rgba(2, 6, 23, 0.85);
-  border: 0.5px solid rgba(56, 189, 248, 0.3);
-  padding: 2px 7px;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  backdrop-filter: blur(6px);
+  padding: 3px 8px;
   border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   z-index: 6;
 }
 
@@ -213,9 +227,9 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 6px #22c55e;
-  animation: pacsBlink 1s infinite;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  animation: pacsBlink 1.4s infinite;
 }
 
 /* Multi-Stage AI Pipeline Tracker */
@@ -223,8 +237,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 10px;
   padding: 12px 14px;
 }
@@ -233,7 +247,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  opacity: 0.45;
+  opacity: 0.5;
   transition: all 0.25s ease;
 }
 
@@ -249,8 +263,8 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #1e293b;
+  border: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -261,22 +275,22 @@
 }
 
 .pipeline-stage-item.completed .stage-icon-circle {
-  background: rgba(34, 197, 94, 0.15);
-  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
 }
 
 .icon-completed {
-  color: #22c55e;
+  color: #10b981;
 }
 
 .pipeline-stage-item.active .stage-icon-circle {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: #38bdf8;
-  color: #38bdf8;
+  background: rgba(37, 99, 235, 0.15);
+  border-color: #3b82f6;
+  color: #60a5fa;
 }
 
 .icon-active {
-  color: #38bdf8;
+  color: #60a5fa;
 }
 
 .stage-text-group {
@@ -292,12 +306,12 @@
 }
 
 .pipeline-stage-item.active .stage-title {
-  color: #38bdf8;
+  color: #60a5fa;
 }
 
 .stage-desc {
   font-size: 0.68rem;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 /* Progress Bar & Status Pill */
@@ -319,15 +333,15 @@
   gap: 6px;
   font-size: 0.74rem;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #93c5fd;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
   border-radius: 6px;
-  padding: 3px 10px;
+  padding: 4px 10px;
 }
 
 .sparkle-cyan {
-  color: #38bdf8;
+  color: #60a5fa;
   animation: pacsBlink 1.5s infinite;
 }
 
@@ -335,7 +349,7 @@
   font-size: 0.84rem;
   font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #38bdf8;
+  color: #60a5fa;
 }
 
 .upload-progress-track {
@@ -348,10 +362,10 @@
 
 .upload-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, #0284c7, #38bdf8, #6366f1);
+  background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
   border-radius: 9999px;
   transition: width 0.3s ease;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
 /* Result Card */

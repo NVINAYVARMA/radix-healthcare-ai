@@ -57,7 +57,7 @@ export const PacsLoader = ({
             {/* Spine & Ribcage Paths */}
             <path
               d="M100 20 V180 M85 45 C70 55 55 75 55 105 C55 135 70 155 85 165 M115 45 C130 55 145 75 145 105 C145 135 130 155 115 165"
-              stroke="#0284c7"
+              stroke="#2563eb"
               strokeWidth="2.5"
               strokeLinecap="round"
               opacity="0.4"
@@ -65,22 +65,22 @@ export const PacsLoader = ({
             {/* Clavicles */}
             <path
               d="M60 40 Q100 50 140 40"
-              stroke="#38bdf8"
+              stroke="#60a5fa"
               strokeWidth="2"
               strokeLinecap="round"
               opacity="0.6"
             />
             {/* Rib Arcs */}
-            <path d="M75 65 C60 72 60 90 75 95" stroke="#38bdf8" strokeWidth="1.8" opacity="0.5" />
-            <path d="M125 65 C140 72 140 90 125 95" stroke="#38bdf8" strokeWidth="1.8" opacity="0.5" />
-            <path d="M78 105 C62 112 62 130 78 135" stroke="#38bdf8" strokeWidth="1.8" opacity="0.5" />
-            <path d="M122 105 C138 112 138 130 122 135" stroke="#38bdf8" strokeWidth="1.8" opacity="0.5" />
+            <path d="M75 65 C60 72 60 90 75 95" stroke="#60a5fa" strokeWidth="1.8" opacity="0.45" />
+            <path d="M125 65 C140 72 140 90 125 95" stroke="#60a5fa" strokeWidth="1.8" opacity="0.45" />
+            <path d="M78 105 C62 112 62 130 78 135" stroke="#60a5fa" strokeWidth="1.8" opacity="0.45" />
+            <path d="M122 105 C138 112 138 130 122 135" stroke="#60a5fa" strokeWidth="1.8" opacity="0.45" />
             {/* Cardiac Silhouette Outline */}
             <path
               d="M92 95 C85 110 88 130 105 138 C115 130 115 110 108 95 Z"
-              stroke="#38bdf8"
+              stroke="#60a5fa"
               strokeWidth="2"
-              fill="rgba(2, 132, 199, 0.15)"
+              fill="rgba(37, 99, 235, 0.12)"
               className="pacs-cardiac-glow"
             />
           </svg>
@@ -96,7 +96,7 @@ export const PacsLoader = ({
                 className="pacs-ecg-path"
                 d="M0,20 L60,20 L70,12 L75,28 L80,5 L86,35 L92,20 L100,20 L160,20 L170,12 L175,28 L180,5 L186,35 L192,20 L200,20 L260,20 L270,12 L275,28 L280,5 L286,35 L292,20 L300,20"
                 fill="none"
-                stroke="#38bdf8"
+                stroke="#60a5fa"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
