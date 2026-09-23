@@ -3245,6 +3245,204 @@
   font-weight: 600;
 }
 
+/* =========================================
+   WORKLIST HEADER ACTIONS & BADGES
+   ========================================= */
+.worklist-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.worklist-scope-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 0.5px solid #0f172a;
+  border-radius: 8px;
+  padding: 0 12px;
+  height: 36px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.scope-badge-icon {
+  color: #2563eb;
+  flex-shrink: 0;
+}
+
+.reviewed-archive-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 13px;
+  background: #ffffff;
+  border: 0.5px solid #0f172a;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.reviewed-archive-nav-btn:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #0f172a;
+}
+
+/* =========================================
+   MOBILE WORKLIST CARDS (< 640px)
+   ========================================= */
+.worklist-mobile-cards {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 4px;
+}
+
+.worklist-mobile-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.worklist-mobile-card:hover {
+  border-color: #cbd5e1;
+  background: #fafbfc;
+}
+
+.worklist-mobile-card.selected-card {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  box-shadow: 0 0 0 1px #0284c7;
+}
+
+.mobile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-left-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mobile-card-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0284c7;
+  flex-shrink: 0;
+}
+
+.card-study-id {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.card-patient-id {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-right-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mobile-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.meta-patient-name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.meta-modality {
+  color: #0284c7;
+  font-weight: 600;
+}
+
+.meta-dot {
+  color: #94a3b8;
+  font-size: 0.65rem;
+}
+
+.mobile-card-findings {
+  background: #f8fafc;
+  border-left: 2px solid #0284c7;
+  padding: 6px 8px;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.7rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+.mobile-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.mobile-action-btn {
+  flex: 1;
+  justify-content: center;
+  height: 32px;
+  font-size: 0.72rem;
+}
+
+.table-delete-btn.mobile-action-btn {
+  flex: 0 0 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  border: 1px solid #fee2e2;
+  background: #ffffff;
+  color: #dc2626;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 /* ==========================================================================
    MOBILE & RESPONSIVE OVERHAUL FOR WORKLIST & DASHBOARD
    ========================================================================== */
@@ -3264,12 +3462,12 @@
   }
 
   .worklist-header {
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .worklist-header-actions {
-    flex-wrap: wrap;
     width: 100%;
     justify-content: flex-start;
     gap: 8px;
@@ -3282,20 +3480,30 @@
   }
 
   .priority-pills-group {
-    flex-wrap: wrap;
-    gap: 4px;
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 2px;
     width: 100%;
   }
 
+  .priority-pills-group::-webkit-scrollbar {
+    display: none;
+  }
+
   .filter-dropdowns-group {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
     width: 100%;
   }
 
   .filter-dropdowns-group .dropdown-select-wrapper {
-    flex: 1 1 calc(50% - 6px);
-    min-width: 130px;
+    width: 100%;
+    min-width: 0;
   }
 
   .filter-dropdowns-group .dropdown-select-wrapper select {
@@ -3327,30 +3535,38 @@
   }
 }
 
-@media (max-width: 600px) {
-  .worklist-title-block h2 {
-    font-size: 1.1rem;
+@media (max-width: 640px) {
+  .radix-worklist-panel {
+    padding: 8px 10px;
   }
 
-  .worklist-subtitle {
-    font-size: 0.7rem;
+  .worklist-table {
+    display: none !important;
+  }
+
+  .worklist-mobile-cards {
+    display: flex !important;
   }
 
   .worklist-header-actions button,
   .worklist-header-actions .worklist-scope-badge,
   .worklist-header-actions .reviewed-archive-nav-btn {
-    font-size: 0.74rem;
-    padding: 5px 10px;
+    font-size: 0.72rem;
+    height: 34px;
+    padding: 0 10px;
   }
 
-  .pill-badge {
-    padding: 3px 8px;
+  .worklist-title-block h2 {
+    font-size: 1.15rem;
+  }
+
+  .worklist-subtitle {
     font-size: 0.68rem;
   }
 
-  .filter-dropdowns-group .dropdown-select-wrapper {
-    flex: 1 1 100%;
-    min-width: 100%;
+  .pill-badge {
+    padding: 4px 9px;
+    font-size: 0.7rem;
   }
 
   .worklist-footer {
@@ -3358,11 +3574,31 @@
     gap: 8px;
     align-items: center;
     text-align: center;
+    padding: 10px 0;
   }
 
   .pagination-controls {
     flex-wrap: wrap;
     justify-content: center;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 400px) {
+  .worklist-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .worklist-header-actions button,
+  .worklist-header-actions .worklist-scope-badge,
+  .worklist-header-actions .reviewed-archive-nav-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filter-dropdowns-group {
+    grid-template-columns: 1fr;
   }
 }
 

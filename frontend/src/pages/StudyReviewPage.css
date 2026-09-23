@@ -1230,9 +1230,8 @@
   }
 
   .pacs-stage-viewport {
-    height: 48vh;
+    height: min(50vh, 440px);
     min-height: 280px;
-    max-height: 460px;
   }
 
   .pacs-inspector-column {
@@ -1245,74 +1244,121 @@
 @media (max-width: 768px) {
   .pacs-top-bar {
     height: auto;
-    min-height: 44px;
+    min-height: 52px;
     max-height: none;
     padding: 8px 10px;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
   }
 
   .pacs-top-left {
-    flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     gap: 6px;
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .patient-quick-meta {
     font-size: 0.7rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .pacs-top-right {
-    flex-wrap: wrap;
-    gap: 6px;
-    width: 100%;
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .study-sequence-controls {
+    order: 3;
+    margin-left: auto;
   }
 
   .pacs-toolbar {
-    height: auto;
-    min-height: 38px;
-    max-height: none;
-    flex-wrap: wrap;
-    padding: 4px 6px;
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 2px 4px;
     gap: 4px;
-    justify-content: center;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pacs-toolbar::-webkit-scrollbar {
+    display: none;
   }
 
   .toolbar-item {
-    padding: 4px 6px;
+    padding: 5px 8px;
     font-size: 0.68rem;
+    min-height: 34px;
+    flex-shrink: 0;
+  }
+
+  .shortcuts-hint {
+    display: none !important;
   }
 
   .pacs-bottom-bar {
     height: auto;
-    min-height: 48px;
+    min-height: 52px;
     max-height: none;
-    padding: 8px 10px;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
   }
 
   .bottom-bar-left,
   .bottom-bar-right {
-    flex-wrap: wrap;
-    justify-content: center;
+    display: flex;
+    align-items: center;
     gap: 6px;
     width: 100%;
+  }
+
+  .bottom-bar-left {
+    justify-content: flex-start;
+  }
+
+  .bottom-bar-right {
+    justify-content: stretch;
   }
 
   .pacs-action-btn {
     flex: 1 1 auto;
     justify-content: center;
-    min-height: 36px;
-    padding: 6px 12px;
+    height: 38px;
+    font-size: 0.76rem;
+    padding: 0 12px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
   .pacs-stage-viewport {
-    height: 42vh;
+    height: min(44vh, 360px);
     min-height: 240px;
+  }
+
+  .toolbar-item span {
+    display: none;
+  }
+
+  .toolbar-item {
+    padding: 6px 10px;
+    min-width: 36px;
+    justify-content: center;
   }
 
   .study-id-badge,
@@ -1321,13 +1367,26 @@
     padding: 2px 6px;
   }
 
-  .inspector-tab-btn {
+  .pacs-priority-pill {
+    padding: 2px 8px;
     font-size: 0.65rem;
+  }
+
+  .pacs-status-pill {
+    padding: 2px 6px;
+    font-size: 0.62rem;
+  }
+
+  .inspector-tab-btn {
+    font-size: 0.68rem;
     padding: 6px 4px;
   }
 
-  .inspector-tab-btn span {
-    display: inline;
+  .override-trigger-btn,
+  .pacs-delete-trigger-btn {
+    flex: 1;
+    justify-content: center;
+    height: 34px;
   }
 }
 

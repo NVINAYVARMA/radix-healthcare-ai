@@ -200,3 +200,45 @@
 .why-footer-pacs-btn:hover {
   background: #0369a1;
 }
+
+@media (max-width: 600px) {
+  .why-modal-dialog {
+    max-height: 94dvh;
+    border-radius: 10px;
+    width: 100%;
+  }
+
+  .why-modal-header {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .why-modal-patient-info {
+    gap: 6px;
+  }
+
+  .why-modal-body {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .why-modal-footer {
+    padding: 10px 14px;
+    flex-direction: column-reverse;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .why-footer-right-actions {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .why-footer-right-actions button,
+  .why-footer-close-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    text-align: center;
+    height: 36px;
+  }
+}

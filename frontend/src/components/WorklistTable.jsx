@@ -353,25 +353,14 @@ export const WorklistTable = ({
           </p>
         </div>
 
-        <div className="worklist-header-actions" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className="worklist-header-actions">
           {/* Worklist Isolation Pill */}
           <div
             className="worklist-scope-badge"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              background: "#f1f5f9",
-              border: "0.5px solid #0f172a",
-              borderRadius: "8px",
-              padding: "5px 12px",
-              fontSize: "0.78rem",
-              fontWeight: 700,
-              color: "#0f172a",
-            }}
+            title="Active scanned worklist filtered to current user session"
           >
-            <Sparkles size={13} style={{ color: "#2563eb" }} />
-            <span>My Scanned Worklist ({scopedStudies.length})</span>
+            <Sparkles size={13} className="scope-badge-icon" />
+            <span>My Worklist ({scopedStudies.length})</span>
           </div>
 
           <button
@@ -379,28 +368,13 @@ export const WorklistTable = ({
             className="reviewed-archive-nav-btn"
             onClick={() => navigate("/reviewed")}
             title="View clinically finalized and reviewed studies archive"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "6px",
-              height: "36px",
-              padding: "0 14px",
-              background: "#ffffff",
-              border: "0.5px solid #0f172a",
-              borderRadius: "8px",
-              color: "#334155",
-              fontSize: "0.82rem",
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
           >
-            <ClipboardCheck size={15} color="#0284c7" />
+            <ClipboardCheck size={14} color="#0284c7" />
             <span>Reviewed Archive</span>
           </button>
 
           <button className="upload-scans-btn" onClick={onOpenUploadModal}>
-            <Upload size={15} className="btn-icon" />
+            <Upload size={14} className="btn-icon" />
             <span>Upload New Scans</span>
           </button>
         </div>
@@ -998,6 +972,167 @@ export const WorklistTable = ({
             )}
           </tbody>
         </table>
+
+        {/* Mobile Clinical Card View (< 640px) */}
+        <div className="worklist-mobile-cards">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <div key={idx} className="worklist-mobile-card skeleton-card">
+                <div className="mobile-card-header">
+                  <Skeleton width="110px" height="18px" />
+                  <Skeleton width="60px" height="20px" style={{ borderRadius: "10px" }} />
+                </div>
+                <Skeleton width="80%" height="13px" style={{ margin: "6px 0" }} />
+                <Skeleton width="100%" height="32px" style={{ borderRadius: "6px" }} />
+              </div>
+            ))
+          ) : currentStudies.length > 0 ? (
+            currentStudies.map((study) => {
+              const isSelected = study.id === selectedStudyId;
+              const isChecked = checkedIds.has(study.id);
+              const score = study.priorityScore?.toFixed(2) || "0.00";
+              const priorityClass =
+                study.priority === "High"
+                  ? "priority-pill-high"
+                  : study.priority === "Medium"
+                  ? "priority-pill-medium"
+                  : "priority-pill-low";
+              const scoreClass =
+                study.priorityScore >= 0.8
+                  ? "score-badge-high"
+                  : study.priorityScore >= 0.5
+                  ? "score-badge-med"
+                  : "score-badge-low";
+
+              const uploader = study.uploaded_by || study.uploadedBy;
+              const studyReviewer = study.reviewerId || study.reviewer_id || study.reviewedBy;
+              const isReviewedStudy =
+                study.status === "Reviewed" ||
+                study.status === "REVIEWED" ||
+                Boolean(study.reviewedAt || study.reviewed_at || studyReviewer);
+
+              const canDelete = isReviewedStudy
+                ? (matchesCurrentUser(studyReviewer) || matchesCurrentUser(uploader))
+                : (uploader ? matchesCurrentUser(uploader) : true);
+
+              return (
+                <div
+                  key={study.id}
+                  className={`worklist-mobile-card ${isSelected ? "selected-card" : ""}`}
+                  onClick={() => handleRowClick(study)}
+                >
+                  <div className="mobile-card-header">
+                    <div className="card-left-header" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => handleCheckboxToggle(e, study.id)}
+                        disabled={!canDelete}
+                        className="mobile-card-checkbox"
+                        aria-label={`Select ${study.patientId}`}
+                      />
+                      <span className="card-study-id">{study.studyId || `ST-${String(study.id).padStart(3, "0")}`}</span>
+                      <strong className="card-patient-id">{study.patientId}</strong>
+                    </div>
+                    <div className="card-right-header">
+                      <span className={`table-priority-badge ${priorityClass}`}>
+                        {study.priority}
+                      </span>
+                      <button
+                        type="button"
+                        className={`table-score-badge ${scoreClass} clickable-score-pill`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExplainingStudy(study);
+                        }}
+                        title="AI Priority Score"
+                      >
+                        <span className="score-num">{score}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mobile-card-meta">
+                    <span className="meta-patient-name">{study.patientName}</span>
+                    <span className="meta-dot">•</span>
+                    <span>{study.age} / {study.sex}</span>
+                    <span className="meta-dot">•</span>
+                    <span className="meta-modality">{study.bodyPart} {study.modality}</span>
+                    <span className="meta-dot">•</span>
+                    <span className="meta-arrival">{study.arrivalTime}</span>
+                  </div>
+
+                  {study.keyFindings && (
+                    <div className="mobile-card-findings">
+                      <strong>AI Findings:</strong> {study.keyFindings}
+                    </div>
+                  )}
+
+                  <div className="mobile-card-actions" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="table-view-btn mobile-action-btn"
+                      onClick={() => handleRowClick(study)}
+                    >
+                      <Eye size={13} />
+                      <span>PACS</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="table-why-btn mobile-action-btn"
+                      onClick={() => setExplainingStudy(study)}
+                    >
+                      <Info size={12} />
+                      <span>Why?</span>
+                    </button>
+                    {canDelete ? (
+                      <button
+                        type="button"
+                        className="table-delete-btn mobile-action-btn"
+                        onClick={() => setStudyToDelete(study)}
+                        title="Delete study"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="table-delete-btn mobile-action-btn"
+                        disabled
+                        style={{ opacity: 0.25, cursor: "not-allowed" }}
+                        title="Protected study"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="mobile-cards-empty">
+              <EmptyState
+                icon={Activity}
+                title="No studies match filter"
+                description="Reset filters to view all queued DICOM studies."
+                action={
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setActivePriorityFilter("All");
+                      setSelectedModality("All");
+                      setSelectedBodyPart("All");
+                      setSelectedTimeFilter("All");
+                      setSearchQuery("");
+                    }}
+                  >
+                    Reset All Filters
+                  </Button>
+                }
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* =========================================

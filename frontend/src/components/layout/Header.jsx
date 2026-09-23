@@ -9,6 +9,7 @@ import {
   Menu,
 } from "lucide-react";
 import { authService } from "../../services/authService";
+import { RadixDeltaA } from "../RadixLogo";
 import "./layout.css";
 
 export const Header = ({ onToggleMobileMenu }) => {
@@ -96,20 +97,30 @@ export const Header = ({ onToggleMobileMenu }) => {
 
   return (
     <header className="radix-app-header">
-      {/* Left: Mobile Toggle & Dynamic Breadcrumbs */}
+      {/* Left: Mobile Toggle & Mobile Brand & Dynamic Breadcrumbs */}
       <div className="header-left">
         <button
           className="header-mobile-toggle"
           onClick={onToggleMobileMenu}
           aria-label="Toggle navigation menu"
         >
-          <Menu size={20} />
+          <Menu size={18} />
         </button>
+
+        {/* Mobile Brand Link: visible on mobile/tablets when sidebar is hidden */}
+        <Link to="/dashboard" className="header-mobile-brand" title="RADIX Diagnostic AI">
+          <div className="header-brand-logo">
+            <span>R</span>
+            <RadixDeltaA size={17} color="#0284c7" strokeWidth={2.6} />
+            <span>DIX</span>
+          </div>
+          <span className="header-brand-tag">Triage OS</span>
+        </Link>
 
         <nav className="header-breadcrumbs" aria-label="Breadcrumb">
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={crumb.to + idx}>
-              {idx > 0 && <ChevronRight size={14} className="breadcrumb-separator" />}
+              {idx > 0 && <ChevronRight size={13} className="breadcrumb-separator" />}
               <Link
                 to={crumb.to}
                 className={`breadcrumb-item ${
@@ -123,8 +134,13 @@ export const Header = ({ onToggleMobileMenu }) => {
         </nav>
       </div>
 
-      {/* Right: Profile */}
+      {/* Right: PACS Status & Profile */}
       <div className="header-right">
+        <div className="header-status-badge" title="Hospital PACS Gateway Online">
+          <span className="pulse-green-dot" />
+          <span className="status-text">PACS ONLINE</span>
+        </div>
+
         {/* User Profile Menu Dropdown */}
         <div className="header-profile-container" ref={profileRef}>
           <button
