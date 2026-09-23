@@ -1,14 +1,14 @@
 /* ==========================================================================
-   RADIX HEALTHCARE SAAS - CLINICAL STUDY UPLOAD MODAL
-   Institutional White Healthcare Theme & Multi-Stage AI Triage Animation
+   RADIX HEALTHCARE SAAS - CLINICAL STUDY UPLOAD & AI INGESTION MODAL
+   Institutional Healthcare SaaS Standard (Aidoc / Philips / Sectra tier)
    ========================================================================== */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,14 +18,23 @@
 
 .modal-dialog {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
   border-radius: 14px;
   max-width: 580px;
   width: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.2), 0 8px 16px -4px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25),
+              0 0 0 1px rgba(15, 23, 42, 0.05);
+  transition: all 0.25s ease;
+}
+
+.modal-dialog-processing {
+  background: #090d16;
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 25px 60px -15px rgba(2, 6, 23, 0.8),
+              0 0 40px rgba(2, 132, 199, 0.18);
 }
 
 /* Header */
@@ -36,25 +45,54 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.25s ease;
+}
+
+.modal-dialog-processing .modal-header {
+  background: #0f172a;
+  border-bottom-color: rgba(56, 189, 248, 0.2);
 }
 
 .modal-title-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+.modal-header-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dialog-processing .modal-header-icon-wrapper {
+  background: rgba(2, 132, 199, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
 }
 
 .modal-icon-blue {
   color: #0284c7;
-  flex-shrink: 0;
+}
+
+.modal-dialog-processing .modal-icon-blue {
+  color: #38bdf8;
 }
 
 .modal-title-group h3 {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
   line-height: 1.2;
+}
+
+.modal-dialog-processing .modal-title-group h3 {
+  color: #f8fafc;
 }
 
 .modal-title-group p {
@@ -63,12 +101,16 @@
   margin: 2px 0 0 0;
 }
 
+.modal-dialog-processing .modal-title-group p {
+  color: #94a3b8;
+}
+
 .modal-close-btn {
   background: transparent;
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  padding: 4px;
+  padding: 6px;
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -81,7 +123,268 @@
   color: #0f172a;
 }
 
-/* Body Form */
+/* ==========================================================================
+   AI TRIAGE INGESTION SCREEN (ACTIVATES DURING SCAN UPLOAD)
+   ========================================================================== */
+.upload-ai-processing-screen {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #090d16;
+  color: #e2e8f0;
+}
+
+/* Holographic Medical Scanner Viewport */
+.upload-scan-hud-container {
+  width: 100%;
+  height: 185px;
+  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-hud-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.upload-laser-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #38bdf8, #0284c7, #38bdf8, transparent);
+  box-shadow: 0 0 14px #38bdf8, 0 0 24px rgba(56, 189, 248, 0.6);
+  animation: uploadLaserPass 1.8s ease-in-out infinite alternate;
+  z-index: 5;
+}
+
+@keyframes uploadLaserPass {
+  0% { top: 4%; opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { top: 94%; opacity: 0.7; }
+}
+
+.upload-hud-scan-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  opacity: 0.85;
+  filter: contrast(1.15) brightness(0.95);
+  z-index: 1;
+}
+
+.upload-hud-tag {
+  position: absolute;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #38bdf8;
+  background: rgba(2, 6, 23, 0.85);
+  border: 0.5px solid rgba(56, 189, 248, 0.3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 6;
+}
+
+.upload-hud-tag.top-left { top: 8px; left: 8px; }
+.upload-hud-tag.top-right { top: 8px; right: 8px; }
+.upload-hud-tag.bottom-left { bottom: 8px; left: 8px; }
+.upload-hud-tag.bottom-right { bottom: 8px; right: 8px; }
+
+.dot-live-green {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pacsBlink 1s infinite;
+}
+
+/* Multi-Stage AI Pipeline Tracker */
+.upload-pipeline-tracker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.pipeline-stage-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.45;
+  transition: all 0.25s ease;
+}
+
+.pipeline-stage-item.completed {
+  opacity: 1;
+}
+
+.pipeline-stage-item.active {
+  opacity: 1;
+}
+
+.stage-icon-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.pipeline-stage-item.completed .stage-icon-circle {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.icon-completed {
+  color: #22c55e;
+}
+
+.pipeline-stage-item.active .stage-icon-circle {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.icon-active {
+  color: #38bdf8;
+}
+
+.stage-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stage-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.pipeline-stage-item.active .stage-title {
+  color: #38bdf8;
+}
+
+.stage-desc {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+/* Progress Bar & Status Pill */
+.upload-progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upload-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upload-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  padding: 3px 10px;
+}
+
+.sparkle-cyan {
+  color: #38bdf8;
+  animation: pacsBlink 1.5s infinite;
+}
+
+.upload-percentage-text {
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #38bdf8;
+}
+
+.upload-progress-track {
+  width: 100%;
+  height: 6px;
+  background: #1e293b;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.upload-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #38bdf8, #6366f1);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+/* Result Card */
+.upload-result-badge-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #dcfce7;
+}
+
+.shield-success-icon {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.upload-result-badge-card strong {
+  display: block;
+  font-size: 0.82rem;
+  color: #4ade80;
+}
+
+.upload-result-badge-card span {
+  font-size: 0.72rem;
+  color: #86efac;
+}
+
+/* ==========================================================================
+   STANDARD UPLOAD FORM STYLING
+   ========================================================================== */
 .modal-body {
   padding: 16px 18px;
   display: flex;
@@ -92,7 +395,6 @@
   background: #ffffff;
 }
 
-/* Error Banner */
 .upload-error-banner {
   display: flex;
   align-items: center;
@@ -108,9 +410,9 @@
 
 /* Drag & Drop Zone */
 .file-dropzone {
-  border: 2px dashed #0f172a;
+  border: 2px dashed #cbd5e1;
   border-radius: 10px;
-  background: #ffffff;
+  background: #f8fafc;
   padding: 18px 14px;
   display: flex;
   flex-direction: column;
@@ -126,12 +428,25 @@
 .file-dropzone.dragging {
   border-color: #0284c7;
   background: #f0f9ff;
-  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.1);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
 }
 
 .file-dropzone.file-ready {
-  border-color: #0f172a;
+  border-color: #22c55e;
   background: #f0fdf4;
+  padding: 10px 14px;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
 }
 
 .dropzone-icon-circle {
@@ -139,114 +454,112 @@
   height: 44px;
   border-radius: 50%;
   background: #ffffff;
-  border: 1px solid #0f172a;
+  border: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
-  transition: transform 0.2s ease;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05);
 }
 
-.file-dropzone.file-ready .dropzone-icon-circle {
-  background: #dcfce7;
-  color: #16a34a;
+.dropzone-icon {
+  color: #0284c7;
 }
 
-.text-emerald {
-  color: #16a34a;
+.dropzone-main-text {
+  font-size: 0.82rem;
+  color: #334155;
+  margin: 0;
 }
 
-.dropzone-text {
+.dropzone-main-text strong {
+  color: #0284c7;
+}
+
+.dropzone-sub-text {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+/* File Selected Card */
+.file-selected-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.file-thumbnail-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #020617;
+  border: 1px solid #cbd5e1;
+  flex-shrink: 0;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-selected-details {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  text-align: left;
+  min-width: 0;
 }
 
-.dropzone-text strong {
-  font-size: 0.82rem;
+.file-name {
+  font-size: 0.78rem;
   font-weight: 600;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dropzone-text span {
-  font-size: 0.72rem;
-  color: #64748b;
+.file-meta {
+  font-size: 0.68rem;
+  color: #16a34a;
+  font-weight: 500;
 }
 
-.file-name-text {
-  color: #15803d !important;
-  font-weight: 700 !important;
-}
-
-.file-size-text {
-  color: #166534 !important;
-  font-size: 0.7rem !important;
-}
-
-.dropzone-action-buttons {
+.file-remove-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.browse-files-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #ffffff;
-  border: 0.5px solid #0f172a;
-  color: #0f172a;
-  font-size: 0.74rem;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+  justify-content: center;
   transition: all 0.15s ease;
 }
 
-.browse-files-btn:hover {
-  background: #f8fafc;
-  color: #0f172a;
+.file-remove-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
 }
 
-.remove-file-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #ffffff;
-  border: 0.5px solid #dc2626;
-  color: #dc2626;
-  font-size: 0.74rem;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.remove-file-btn:hover {
-  background: #fef2f2;
-  border-color: #b91c1c;
-  color: #b91c1c;
-}
-
-/* Metadata Fields Form */
-.metadata-section-header {
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 4px;
-  margin-top: 2px;
-}
-
-.metadata-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.modal-form-grid {
+/* Form Fields */
+.form-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
   gap: 10px;
 }
 
@@ -256,25 +569,24 @@
   gap: 4px;
 }
 
-.form-group.full-width {
-  grid-column: span 2;
-}
-
 .form-group label {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #334155;
+  color: #475569;
+  letter-spacing: 0.01em;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  padding: 6px 10px;
+  font-family: inherit;
   font-size: 0.78rem;
   color: #0f172a;
   background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 7px;
+  padding: 7px 10px;
+  outline: none;
   transition: all 0.15s ease;
 }
 
@@ -282,7 +594,6 @@
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: #0284c7;
-  outline: none;
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
 }
 
@@ -292,79 +603,23 @@
   align-items: center;
 }
 
-.input-with-icon .input-icon {
+.input-icon {
   position: absolute;
-  left: 10px;
+  left: 9px;
   color: #94a3b8;
   pointer-events: none;
 }
 
 .input-with-icon input {
   width: 100%;
-  padding-left: 30px;
+  padding-left: 28px;
 }
 
-/* AI Analysis & Progress Card */
-.analysis-progress-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-}
-
-.progress-status-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.pulse-spinner {
-  color: #0284c7;
-  display: flex;
-  align-items: center;
-  animation: pulse 1.2s infinite ease-in-out;
-}
-
-.step-text {
-  flex: 1;
-  font-size: 0.74rem;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.pct-text {
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: #0284c7;
-  font-variant-numeric: tabular-nums;
-}
-
-.progress-track {
-  width: 100%;
-  height: 5px;
-  background: #e2e8f0;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #0284c7, #38bdf8, #6366f1, #0284c7);
-  background-size: 200% 100%;
-  animation: pacsTrackFlow 1.6s ease-in-out infinite;
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-/* Modal Footer */
+/* Footer */
 .modal-footer {
   padding: 12px 18px;
-  border-top: 0.5px solid #0f172a;
-  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -373,10 +628,10 @@
 
 .modal-cancel-btn {
   background: #ffffff;
-  border: 0.5px solid #0f172a;
-  color: #0f172a;
-  border-radius: 6px;
-  padding: 6px 14px;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  border-radius: 7px;
+  padding: 7px 14px;
   font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
@@ -384,8 +639,8 @@
 }
 
 .modal-cancel-btn:hover {
-  background: #0f172a;
-  color: #ffffff;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .modal-submit-btn {
@@ -393,22 +648,30 @@
   align-items: center;
   gap: 6px;
   background: #0284c7;
-  border: 0.5px solid #0f172a;
+  border: 1px solid #0284c7;
   color: #ffffff;
-  border-radius: 6px;
-  padding: 6px 16px;
+  border-radius: 7px;
+  padding: 7px 16px;
   font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
 }
 
 .modal-submit-btn:hover:not(:disabled) {
   background: #0369a1;
-  border-color: #0f172a;
+  border-color: #0369a1;
 }
 
 .modal-submit-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .form-row-2,
+  .form-row-3 {
+    grid-template-columns: 1fr;
+  }
 }
